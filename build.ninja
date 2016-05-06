@@ -1,0 +1,23 @@
+cc = clang
+cflags = -Wall -Iinclude -g
+
+rule cc
+  command = $cc $cflags -c $in -o $out
+  description = CC $in
+
+rule ldc
+  command = $cc $in -o $out -l m -l glfw -l GLEW -l GL
+  description = LD -> $out
+
+build build/utils.o: cc src/utils.c
+build build/maths.o: cc src/maths.c
+build build/client/main.o: cc src/client/main.c
+build build/client/game.o: cc src/client/game.c
+build build/client/render.o: cc src/client/render.c
+
+build build/game: ldc $
+  build/utils.o $
+  build/maths.o $
+  build/client/main.o $
+  build/client/game.o $
+  build/client/render.o
