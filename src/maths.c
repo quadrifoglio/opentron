@@ -302,6 +302,33 @@ Mat4 mathMat4Perspective(float fov, float w, float h, float zNear, float zFar) {
 	return m;
 }
 
+Mat4 mathMat4LookAt(Vec3 eye, Vec3 center, Vec3 up) {
+	Vec3 f = mathVec3SubV(center, eye);
+	Vec3 u = mathVec3Norm(up);
+	Vec3 s = mathVec3Norm(mathVec3Cross(f, u));
+	u = mathVec3Cross(s, f);
+
+	Mat4 v = mathMat4Identity();
+
+	v.m[0][0] = s.x;
+	v.m[0][1] = s.y;
+	v.m[0][2] = s.z;
+
+	v.m[1][0] = u.x;
+	v.m[1][1] = u.y;
+	v.m[1][2] = u.z;
+
+	v.m[2][0] = -f.x;
+	v.m[2][1] = -f.y;
+	v.m[2][2] = -f.z;
+
+	v.m[0][3] = -mathVec3Dot(s, eye);
+	v.m[1][3] = -mathVec3Dot(u, eye);
+	v.m[2][3] = mathVec3Dot(f, eye);
+
+	return v;
+}
+
 Mat4 mathMat4Translation(Vec3 v) {
 	Mat4 m = mathMat4Identity();
 

@@ -134,6 +134,7 @@ Quat mathQuatMulV(Quat q, Vec3 v);
  */
 Mat4 mathMat4Identity(void);
 Mat4 mathMat4Perspective(float fov, float w, float h, float zNear, float zFar);
+Mat4 mathMat4LookAt(Vec3 eye, Vec3 center, Vec3 up);
 Mat4 mathMat4Translation(Vec3 v);
 Mat4 mathMat4Rotation(Vec3 v);
 Mat4 mathMat4Scale(Vec3 v);

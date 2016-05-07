@@ -1,13 +1,22 @@
 #pragma once
 
 #include "client/render.h"
+#include "client/entity.h"
+
+#define KEY_FWD 87
+#define KEY_BWD 83
+#define KEY_LFT 65
+#define KEY_RGT 68
 
 typedef struct {
 	int width, height;
-
 	Shader shader;
-	Mesh m;
-	Transform t;
+
+	Mesh cubeMesh;
+	Camera cam;
+
+	Room room;
+	Entity moto;
 } Game;
 
 Game gameInit(int width, int height);
