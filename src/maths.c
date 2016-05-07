@@ -287,6 +287,21 @@ Mat4 mathMat4Identity(void) {
 	return m;
 }
 
+Mat4 mathMat4Perspective(float fov, float w, float h, float zNear, float zFar) {
+	Mat4 m = mathMat4Identity();
+
+	float r = w / h;
+	float tanHalfFov = (float)tan((fov / 2.f) * 180.f / PI);
+
+	m.m[0][0] = 1.f / (tanHalfFov * r);
+	m.m[1][1] = 1.f / tanHalfFov;
+	m.m[2][2] = (-zNear - zFar) / (zNear - zFar);
+	m.m[2][3] = 2 * zFar * zNear / (zNear - zFar);
+	m.m[3][2] = 1.f;
+
+	return m;
+}
+
 Mat4 mathMat4Translation(Vec3 v) {
 	Mat4 m = mathMat4Identity();
 

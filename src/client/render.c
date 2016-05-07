@@ -1,6 +1,8 @@
 #include "client/render.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "utils.h"
 
 void renderInit(void) {
@@ -46,8 +48,10 @@ Shader renderShaderLoad(const char* vpath, const char* fpath) {
 	if(status != GL_TRUE) {
 		char err[512];
 		glGetShaderInfoLog(vsid, 512, NULL, err);
-
 		fprintf(stderr, "Can not compile fragment shader: %s\n", err);
+
+		free(vs);
+		free(fs);
 		return s;
 	}
 
@@ -58,10 +62,15 @@ Shader renderShaderLoad(const char* vpath, const char* fpath) {
 	if(status != GL_TRUE) {
 		char err[512];
 		glGetShaderInfoLog(fsid, 512, NULL, err);
-
 		fprintf(stderr, "Can not compile fragment shader: %s\n", err);
+
+		free(vs);
+		free(fs);
 		return s;
 	}
+
+	free(vs);
+	free(fs);
 
 	s.program = glCreateProgram();
 	glAttachShader(s.program, vsid);
@@ -129,6 +138,75 @@ Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, in
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, in * sizeof(int), is, GL_STATIC_DRAW);
+
+	return m;
+}
+
+Mesh renderMeshLoad(const char* path) {
+	Mesh m = {0};
+
+	char* data = fileGetContentStr(path);
+	if(!data) {
+		return m;
+	}
+
+	srand(time(0));
+
+	Vec3* vs = 0;
+	Color* cs = 0;
+	Vec2* ts = 0;
+	size_t nvs = 0;
+
+	int* is = 0;
+	size_t nis = 0;
+
+	char* line = data;
+	while(line) {
+		char* next = strchr(line, '\n');
+		if(next) *next = 0;
+
+		if(line[0] == 'v') {
+			float x, y, z;
+			sscanf(line, "v %f %f %f", &x, &y, &z);
+
+			vs = realloc(vs, (++nvs) * sizeof(Vec3));
+			vs[nvs - 1] = (Vec3){x, y, z};
+
+			float r = (float)rand() / (float)RAND_MAX;
+			float g = (float)rand() / (float)RAND_MAX;
+			float b = (float)rand() / (float)RAND_MAX;
+			cs = realloc(cs, nvs * sizeof(Color));
+			cs[nvs - 1] = (Color){r, g, b, 1.f};
+
+			ts = realloc(ts, nvs * sizeof(Vec2));
+			ts[nvs - 1] = (Vec2){0.f, 0.f};
+		}
+		else if(line[0] == 'f') {
+			int i[3]; // Indices
+			int t[3]; // Tex coords
+			int n[3]; // Normals
+
+			sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d", &i[0], &t[0], &n[0], &i[1], &t[1], &n[1], &i[2], &t[2], &n[2]);
+
+			i[0] = i[0] - 1;
+			i[1] = i[1] - 1;
+			i[2] = i[2] - 1;
+
+			is = realloc(is, (nis += 3) * sizeof(int));
+			memcpy(is + (nis - 3), i, 3 * sizeof(int));
+		}
+
+		if(next) *next = '\n';
+		line = next ? (next + 1) : 0;
+	}
+
+	free(data);
+	m = renderMeshNew(nvs, vs, cs, ts, nis, is);
+
+	free(vs);
+	free(cs);
+	free(ts);
+	free(is);
 
 	return m;
 }

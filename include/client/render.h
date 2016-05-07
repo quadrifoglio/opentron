@@ -36,4 +36,5 @@ void renderShaderSetProj(Shader* s, Mat4* proj);
 void renderShaderBind(Shader* s);
 
 Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, int* is);
+Mesh renderMeshLoad(const char* path);
 void renderMeshDraw(Shader* s, Mesh* m);

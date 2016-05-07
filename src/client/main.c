@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 
 	printf("GLEW %s, OpenGL %s\n", glewGetString(GLEW_VERSION), glGetString(GL_VERSION));
 
-	Game g = gameInit(640, 480);
+	Game g = gameInit(1280, 720);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetWindowUserPointer(window, &g);
 

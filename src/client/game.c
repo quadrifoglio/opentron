@@ -9,37 +9,14 @@ Game gameInit(int width, int height) {
 	g.shader = renderShaderLoad("res/shaders/basic.vertex", "res/shaders/basic.fragment");
 
 	Mat4 identity = mathMat4Identity();
+	Mat4 proj = mathMat4Perspective(70.f, width, height, 0.1f, 1000.f);
+
 	renderShaderSetModel(&g.shader, &identity);
 	renderShaderSetView(&g.shader, &identity);
-	renderShaderSetProj(&g.shader, &identity);
+	renderShaderSetProj(&g.shader, &proj);
 
-	Vec3 ps[4] = {
-		{-1.f, -1.f, 0.f},
-		{-1.f, 1.f, 0.f},
-		{1.f, 1.f, 0.f},
-		{1.f, -1.f, 0.f},
-	};
-
-	Color cs[4] = {
-		{1.f, 0.f, 0.f, 1.f},
-		{0.f, 1.f, 0.f, 1.f},
-		{0.f, 0.f, 1.f, 1.f},
-		{1.f, 1.f, 1.f, 1.f}
-	};
-
-	Vec2 ts[4] = {
-		{0.f, 0.f},
-		{0.f, 0.f},
-		{0.f, 0.f},
-		{0.f, 0.f}
-	};
-
-	int is[6] = {
-		0, 1, 3, 1, 2, 3
-	};
-
-	g.m = renderMeshNew(4, ps, cs, ts, 6, is);
-	g.t = mathTransform((Vec3){0.f, 0.f, 0.f}, (Vec3){0.f, 0.f, 0.f}, (Vec3){1.f, 1.f, 1.f});
+	g.m = renderMeshLoad("res/models/cube.obj");
+	g.t = mathTransform((Vec3){0.f, 0.f, 0.5f}, (Vec3){0.f, 0.f, 0.f}, (Vec3){0.5f, 0.5f, 0.5f});
 
 	return g;
 }
@@ -53,7 +30,7 @@ void gameKeyReleased(Game* g, int key) {
 }
 
 void gameUpdate(Game* g, double dt) {
-
+	g->t.rotation.z += 0.01f * dt;
 }
 
 void gameRender(Game* g) {
