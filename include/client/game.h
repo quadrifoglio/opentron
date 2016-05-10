@@ -7,8 +7,13 @@
 #define KEY_BWD 83
 #define KEY_LFT 65
 #define KEY_RGT 68
+#define KEY_UP 265
+#define KEY_DOWN 264
 
 typedef struct {
+	bool forward, backward, left, right;
+	bool up, down;
+
 	int width, height;
 	Shader shader;
 

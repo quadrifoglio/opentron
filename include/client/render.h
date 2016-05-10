@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
-#include "maths.h"
+#include "lib/maths.h"
 
 typedef struct {
 	float r, g, b, a;

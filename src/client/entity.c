@@ -9,7 +9,7 @@ Entity entityNew(Mesh mesh) {
 }
 
 void entityDraw(Entity* e, Shader* s) {
-	Mat4 m = mathTransformMatrix(&e->transform);
+	Mat4 m = mathTransformMatrix(e->transform);
 
 	renderShaderSetModel(s, &m);
 	renderMeshDraw(s, &e->mesh);
