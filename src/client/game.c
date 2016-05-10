@@ -21,7 +21,7 @@ Game gameInit(int width, int height) {
 
 	g.moto = entityNew(renderMeshLoad("res/models/cube.obj"));
 	g.moto.transform.translation.z = 10.f;
-	g.moto.transform.rotation.x = PIF;
+	g.moto.transform.rotation.x = 0.f;
 
 	g.room = entityRoomNew(10.f);
 
