@@ -268,7 +268,7 @@ Mat4 mathMat4Scaling(const Vec3 a) {
 
 static inline
 Mat4 mathMat4Rotation(float a, const Vec3 b) {
-	float s = sinf(a), c = cosf(a);
+	float s = sinf(a * PI / 180.f), c = cosf(a * PIF / 180.f);
 	Vec3 vv = mathVec3Norm(b);
 
 	return (Mat4){{
@@ -381,8 +381,8 @@ Mat4 mathMat4Perspective(float fov, float w, float h, float near, float far) {
 	}};*/
 
 	return (Mat4){{
-		1.f / (aspect * tanf(fov / 2.f)), 0, 0, 0,
-		0, 1.f / tanf(fov / 2.f), 0, 0,
+		1.f / (aspect * tanf((fov * PIF / 180.f) / 2.f)), 0, 0, 0,
+		0, 1.f / tanf((fov * PIF / 180.f) / 2.f), 0, 0,
 		0, 0, (-near - far) / (near - far), (2 * far * near) / (near - far),
 		0, 0, 1, 0
 	}};

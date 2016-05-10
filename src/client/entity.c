@@ -53,9 +53,9 @@ Room entityRoomNew(float size) {
 	vs[2] = (Vec3){size, 0.f, size};
 	vs[3] = (Vec3){size, 0.f, 0.f};
 
-	cs[0] = (Color){1.f, 1.f, 1.f, 1.f};
-	cs[1] = (Color){1.f, 1.f, 1.f, 1.f};
-	cs[2] = (Color){1.f, 1.f, 1.f, 1.f};
+	cs[0] = (Color){1.f, 0.f, 0.f, 1.f};
+	cs[1] = (Color){0.f, 1.f, 0.f, 1.f};
+	cs[2] = (Color){0.f, 0.f, 1.f, 1.f};
 	cs[3] = (Color){1.f, 1.f, 1.f, 1.f};
 
 	ts[0]= (Vec2){0.f, 0.f};

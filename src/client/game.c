@@ -9,21 +9,21 @@ Game gameInit(int width, int height) {
 	g.shader = renderShaderLoad("res/shaders/basic.vertex", "res/shaders/basic.fragment");
 
 	Mat4 identity = mathMat4Identity();
-	Mat4 proj = mathMat4Perspective(PIF / 2.f, width, height, 0.1f, 100.f);
+	Mat4 proj = mathMat4Perspective(60.f, width, height, 0.1f, 10.f);
 
 	renderShaderSetModel(&g.shader, &identity);
 	renderShaderSetView(&g.shader, &identity);
 	renderShaderSetProj(&g.shader, &proj);
 
 	g.cam = entityCameraNew();
-	g.cam.position = (Vec3){0.f, 0.f, 0.1f};
-	g.cam.target = (Vec3){0.f, 0.f, 0.f};
+	g.cam.position = (Vec3){0.f, 0.f, 0.0f};
+	g.cam.target = (Vec3){0.f, 0.f, -1.f};
 
-	g.moto = entityNew(renderMeshLoad("res/models/light_cycle.obj"));
+	g.moto = entityNew(renderMeshLoad("res/models/cube.obj"));
 	g.moto.transform.translation.z = 10.f;
 	g.moto.transform.rotation.x = PIF;
 
-	g.room = entityRoomNew(50.f);
+	g.room = entityRoomNew(10.f);
 
 	return g;
 }
@@ -94,15 +94,18 @@ void gameUpdate(Game* g, double dt) {
 	}
 
 	if(g->up) {
-		dy = 3.f * dt;
+		dy = 1.f * dt;
 	}
 	else if(g->down) {
-		dy = -3.f * dt;
+		dy = -1.f * dt;
 	}
 
 	g->cam.position.x += dx;
 	g->cam.position.y += dy;
 	g->cam.position.z += dz;
+
+	g->cam.target.x += dx;
+	g->cam.target.y += dy;
 }
 
 void gameRender(Game* g) {
