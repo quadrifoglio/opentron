@@ -14,7 +14,7 @@
 
 typedef struct {
 	bool forward, backward, left, right;
-	bool up, down;
+	Vec2 mousePrev, mouse;
 
 	int width, height;
 	Shader shader;
@@ -28,6 +28,7 @@ typedef struct {
 
 Game gameInit(int width, int height);
 
+void gameMouseMoved(Game* g, float x, float y);
 void gameKeyPressed(Game* g, int key);
 void gameKeyReleased(Game* g, int key);
 void gameUpdate(Game* g, double dt);

@@ -26,4 +26,4 @@ Camera entityCameraNew();
 void entityCameraUse(Camera* c, Shader* s);
 Mat4 entityCameraMatrix(Camera* c);
 
-Room entityRoomNew(float size);
+Room entityRoomNew(float size, float height);

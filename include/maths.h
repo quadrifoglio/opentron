@@ -24,13 +24,6 @@ typedef struct {
 } Vec4;
 
 /*
- * Quaternion
- */
-typedef struct {
-	float x, y, z, w;
-} Quat;
-
-/*
  * 4x4 square matrix
  */
 typedef struct {
@@ -58,6 +51,7 @@ float mathVec4Len(Vec4 v);
  */
 float mathVec2Dot(Vec2 v1, Vec2 v2);
 float mathVec3Dot(Vec3 v1, Vec3 v2);
+float mathVec4Dot(Vec4 v1, Vec4 v2);
 
 /*
  * Vector cross product
@@ -122,23 +116,17 @@ Vec3 mathVec3DivF(Vec3 v, float n);
 Vec4 mathVec4DivF(Vec4 v, float n);
 
 /*
- * Quaternion operations
- */
-float mathQuatLen(Quat q);
-Quat mathQuatNorm(Quat q);
-Quat mathQuatMulQ(Quat q1, Quat q2);
-Quat mathQuatMulV(Quat q, Vec3 v);
-
-/*
  * Matrice initialization
  */
 Mat4 mathMat4Identity(void);
-Mat4 mathMat4Perspective(float fov, float w, float h, float zNear, float zFar);
+Mat4 mathMat4Perspective(float fov, float r, float zNear, float zFar);
 Mat4 mathMat4LookAt(Vec3 eye, Vec3 center, Vec3 up);
 Mat4 mathMat4Translation(Vec3 v);
-Mat4 mathMat4Rotation(Vec3 v);
+Mat4 mathMat4Rotation(Vec3 a);
+Mat4 mathMat4RotationV(float a, const Vec3 b);
 Mat4 mathMat4Scale(Vec3 v);
-Mat4 mathMat4Mul(Mat4 m1, Mat4 m2);
+Mat4 mathMat4MulM(Mat4 m1, Mat4 m2);
+Vec4 mathMat4MulV(Mat4 m, Vec4 v);
 
 /*
  * Transform functionality

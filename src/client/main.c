@@ -23,6 +23,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
+void mouse_callback(GLFWwindow* window, double x, double y) {
+	Game* g = (Game*)glfwGetWindowUserPointer(window);
+	gameMouseMoved(g, (float)x, (float)y);
+}
+
 int main(int argc, char** argv) {
 	if(!glfwInit()) {
 		fprintf(stderr, "Error: GLFW: can not initialize\n");
@@ -53,8 +58,10 @@ int main(int argc, char** argv) {
 	printf("GLEW %s, OpenGL %s\n", glewGetString(GLEW_VERSION), glGetString(GL_VERSION));
 
 	Game g = gameInit(1280, 720);
-	glfwSetKeyCallback(window, key_callback);
 	glfwSetWindowUserPointer(window, &g);
+
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	double lastFps = 0.f;
 	double last = 0.f;

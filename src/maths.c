@@ -21,6 +21,10 @@ float mathVec3Dot(Vec3 v1, Vec3 v2) {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
+float mathVec4Dot(Vec4 v1, Vec4 v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+}
+
 Vec3 mathVec3Cross(Vec3 v1, Vec3 v2) {
 	Vec3 r;
 
@@ -239,44 +243,6 @@ Vec3 mathVec3DivF(Vec3 v, float n) {
 	return r;
 }
 
-float mathQuatLen(Quat q) {
-	return (float)sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
-}
-
-Quat mathQuatNorm(Quat q) {
-	float len = mathQuatLen(q);
-	Quat qq;
-
-	qq.x = q.x / len;
-	qq.y = q.y / len;
-	qq.z = q.z / len;
-	qq.w = q.w / len;
-
-	return qq;
-}
-
-Quat mathQuatMulQ(Quat q1, Quat q2) {
-	Quat r;
-
-	r.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
-	r.x = q1.x * q2.w + q1.w * q2.x + q1.y * q2.z - q1.z * q2.y;
-	r.y = q1.y * q2.w + q1.w * q2.y + q1.z * q2.x - q1.x * q2.z;
-	r.z = q1.z * q2.w + q1.w * q2.z + q1.x * q2.y - q1.y * q2.x;
-
-	return r;
-}
-
-Quat mathQuatMulV(Quat q, Vec3 v) {
-	Quat r;
-
-	r.w = -q.x * v.x - q.y * v.y - q.z * v.z;
-	r.x =  q.w * v.x + q.y * v.z - q.z * v.y;
-	r.y =  q.w * v.y + q.z * v.x - q.x * v.z;
-	r.z =  q.w * v.z + q.x * v.y - q.y * v.x;
-
-	return r;
-}
-
 Mat4 mathMat4Identity(void) {
 	Mat4 m = {{0.f}};
 	m.m[0][0] = 1;
@@ -287,10 +253,8 @@ Mat4 mathMat4Identity(void) {
 	return m;
 }
 
-Mat4 mathMat4Perspective(float fov, float w, float h, float zNear, float zFar) {
+Mat4 mathMat4Perspective(float fov, float r, float zNear, float zFar) {
 	Mat4 m = mathMat4Identity();
-
-	float r = w / h;
 	float tanHalfFov = tanf((fov * PI / 180.f) / 2.f);
 
 	m.m[0][0] = 1.f / (tanHalfFov * r);
@@ -324,6 +288,11 @@ Mat4 mathMat4LookAt(Vec3 eye, Vec3 center, Vec3 up) {
 	m.m[2][2] = w.z;
 	m.m[2][3] = -mathVec3Dot(w, eye);
 
+	m.m[3][0] = 0.f;
+	m.m[3][1] = 0.f;
+	m.m[3][2] = 0.f;
+	m.m[3][3] = 1.f;
+
 	return m;
 }
 
@@ -346,22 +315,47 @@ Mat4 mathMat4Rotation(Vec3 v) {
 	float y = v.y * 180.f / PI;
 	float z = v.z * 180.f / PI;
 
-	rz.m[0][0] = (float)cos(z);
-	rz.m[0][1] = (float)-sin(z);
-	rz.m[1][0] = (float)sin(z);
-	rz.m[1][1] = (float)cos(z);
+	rz.m[0][0] = cosf(z);
+	rz.m[0][1] = -sinf(z);
+	rz.m[1][0] = sinf(z);
+	rz.m[1][1] = cosf(z);
 
-	rx.m[1][1] = (float)cos(x);
-	rx.m[2][1] = (float)sin(x);
-	rx.m[1][2] = (float)-sin(x);
-	rx.m[2][2] = (float)cos(x);
+	rx.m[1][1] = cosf(x);
+	rx.m[2][1] = sinf(x);
+	rx.m[1][2] = -sinf(x);
+	rx.m[2][2] = cosf(x);
 
-	ry.m[0][0] = (float)cos(y);
-	ry.m[2][0] = (float)sin(y);
-	ry.m[0][2] = (float)-sin(y);
-	ry.m[2][2] = (float)cos(y);
+	ry.m[0][0] = cosf(y);
+	ry.m[2][0] = sinf(y);
+	ry.m[0][2] = -sinf(y);
+	ry.m[2][2] = cosf(y);
 
-	return mathMat4Mul(rz, mathMat4Mul(ry, rx));
+	return mathMat4MulM(rz, mathMat4MulM(ry, rx));
+}
+
+Mat4 mathMat4RotationV(float a, const Vec3 b) {
+	Mat4 m;
+	float s = sinf(a * PI / 180.f), c = cosf(a * PI / 180.f);
+	Vec3 vv = mathVec3Norm(b);
+
+	m.m[0][0] = c + (1.f - c) * vv.x * vv.x;
+	m.m[0][1] = (1.f - c) * vv.x * vv.y - s * vv.z;
+	m.m[0][2] = (1.f - c) * vv.x * vv.z + s * vv.y;
+	m.m[0][3] = 0.f;
+	m.m[1][0] = (1.f - c) * vv.x * vv.y + s * vv.z;
+	m.m[1][1] = c + (1.f - c) * vv.y * vv.y;
+	m.m[1][2] = (1.f - c) * vv.y * vv.z - s * vv.x;
+	m.m[1][3] = 0.f;
+	m.m[2][0] = (1.f - c) * vv.x * vv.z - s * vv.y;
+	m.m[2][1] = (1.f - c) * vv.y * vv.z + s * vv.x;
+	m.m[2][2] = c + (1.f - c) * vv.z * vv.z;
+	m.m[2][3] = 0.f;
+	m.m[3][0] = 0.f;
+	m.m[3][1] = 0.f;
+	m.m[3][2] = 0.f;
+	m.m[3][3] = 1.f;
+
+	return m;
 }
 
 Mat4 mathMat4Scale(Vec3 v) {
@@ -374,7 +368,7 @@ Mat4 mathMat4Scale(Vec3 v) {
 	return m;
 }
 
-Mat4 mathMat4Mul(Mat4 m1, Mat4 m2) {
+Mat4 mathMat4MulM(Mat4 m1, Mat4 m2) {
 	Mat4 r = {{0.f}};
 
 	for(int i = 0; i < 4; i++) {
@@ -382,6 +376,18 @@ Mat4 mathMat4Mul(Mat4 m1, Mat4 m2) {
 			r.m[i][j] = m1.m[i][0] * m2.m[0][j] + m1.m[i][1] * m2.m[1][j] + m1.m[i][2] * m2.m[2][j] + m1.m[i][3] * m2.m[3][j];
 		}
 	}
+
+	return r;
+}
+
+Vec4 mathMat4MulV(Mat4 m, Vec4 v) {
+	Vec4* mv = (Vec4*)m.m;
+	Vec4 r = {0};
+
+	r.x = mathVec4Dot(mv[0], v);
+	r.y = mathVec4Dot(mv[1], v);
+	r.z = mathVec4Dot(mv[2], v);
+	r.w = mathVec4Dot(mv[3], v);
 
 	return r;
 }
@@ -401,5 +407,5 @@ Mat4 mathTransformMatrix(Transform tr) {
 	Mat4 r = mathMat4Rotation(tr.rotation);
 	Mat4 s = mathMat4Scale(tr.scale);
 
-	return mathMat4Mul(mathMat4Mul(s, r), t);
+	return mathMat4MulM(mathMat4MulM(s, r), t);
 }
