@@ -8,13 +8,6 @@ Entity entityNew(Mesh mesh) {
 	return e;
 }
 
-void entityDraw(Entity* e, Shader* s) {
-	Mat4 m = mathTransformMatrix(e->transform);
-
-	renderShaderSetModel(s, &m);
-	renderMeshDraw(s, &e->mesh);
-}
-
 Camera entityCameraNew() {
 	Camera c;
 	c.position = (Vec3){0.f, 0.f, 0.f};
@@ -38,12 +31,12 @@ Room entityRoomNew(float size, float height) {
 	Room r;
 	r.size = size;
 
-	int is[35] = {
-		0, 1, 3, 1, 2, 3,       // Ground
-		4, 5, 7, 5, 6, 7,       // Left wall
-		8, 9, 11, 9, 10, 11,    // Front wall
-		12, 13, 15, 13, 14, 15, // Right wall
-		16, 17, 19, 17, 18, 19  // Back wall
+	unsigned int is[35] = {
+		0, 3, 1, 3, 2, 1,       // Ground
+		4, 7, 5, 7, 6, 5,       // Left wall
+		11, 9, 8, 11, 10, 9,    // Front wall
+		15, 13, 12, 15, 14, 13, // Right wall
+		19, 17, 16, 19, 18, 17  // Back wall
 	};
 
 	Vec3 vs[20];
@@ -51,10 +44,10 @@ Room entityRoomNew(float size, float height) {
 	Vec2 ts[20];
 
 	// Ground
-	vs[0] = (Vec3){-size / 2.f, 0.f, -size / 2.f};
-	vs[1] = (Vec3){-size / 2.f, 0.f,  size / 2.f};
-	vs[2] = (Vec3){ size / 2.f, 0.f,  size / 2.f};
-	vs[3] = (Vec3){ size / 2.f, 0.f, -size / 2.f};
+	vs[0] = (Vec3){-size / 2.f, 0.f,  size / 2.f};
+	vs[1] = (Vec3){-size / 2.f, 0.f, -size / 2.f};
+	vs[2] = (Vec3){ size / 2.f, 0.f, -size / 2.f};
+	vs[3] = (Vec3){ size / 2.f, 0.f,  size / 2.f};
 
 	cs[1] = (Color){1.f, 1.f, 1.f, 1.f};
 	cs[1] = (Color){1.f, 1.f, 1.f, 1.f};
@@ -67,10 +60,10 @@ Room entityRoomNew(float size, float height) {
 	ts[3] = (Vec2){0.f, 0.f};
 
 	// Left wall
-	vs[4] = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
-	vs[5] = (Vec3){-size / 2.f, height, -size / 2.f};
-	vs[6] = (Vec3){-size / 2.f, height,  size / 2.f};
-	vs[7] = (Vec3){-size / 2.f, 0.f,     size / 2.f};
+	vs[4] = (Vec3){-size / 2.f, 0.f,     size / 2.f};
+	vs[5] = (Vec3){-size / 2.f, height,  size / 2.f};
+	vs[6] = (Vec3){-size / 2.f, height,  -size / 2.f};
+	vs[7] = (Vec3){-size / 2.f, 0.f,     -size / 2.f};
 
 	cs[4] = (Color){0.f, 1.f, 0.f, 1.f};
 	cs[5] = (Color){0.f, 1.f, 0.f, 1.f};
@@ -83,10 +76,10 @@ Room entityRoomNew(float size, float height) {
 	ts[7] = (Vec2){0.f, 0.f};
 
 	// Front wall
-	vs[8]  = (Vec3){-size / 2.f, 0.f,    size / 2.f};
-	vs[9]  = (Vec3){-size / 2.f, height, size / 2.f};
-	vs[10] = (Vec3){ size / 2.f, height, size / 2.f};
-	vs[11] = (Vec3){ size / 2.f,  0.f,   size / 2.f};
+	vs[8]  = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
+	vs[9]  = (Vec3){-size / 2.f, height, -size / 2.f};
+	vs[10] = (Vec3){ size / 2.f, height, -size / 2.f};
+	vs[11] = (Vec3){ size / 2.f,  0.f,   -size / 2.f};
 
 	cs[8]  = (Color){0.f, 0.f, 1.f, 1.f};
 	cs[9]  = (Color){0.f, 0.f, 1.f, 1.f};
@@ -99,10 +92,10 @@ Room entityRoomNew(float size, float height) {
 	ts[11] = (Vec2){0.f, 0.f};
 
 	// Right wall
-	vs[12] = (Vec3){size / 2.f, 0.f,     size / 2.f};
-	vs[13] = (Vec3){size / 2.f, height,  size / 2.f};
-	vs[14] = (Vec3){size / 2.f, height, -size / 2.f};
-	vs[15] = (Vec3){size / 2.f, 0.f,    -size / 2.f};
+	vs[12] = (Vec3){size / 2.f, 0.f,    -size / 2.f};
+	vs[13] = (Vec3){size / 2.f, height, -size / 2.f};
+	vs[14] = (Vec3){size / 2.f, height,  size / 2.f};
+	vs[15] = (Vec3){size / 2.f, 0.f,     size / 2.f};
 
 	cs[12] = (Color){1.f, 1.f, 0.f, 1.f};
 	cs[13] = (Color){1.f, 1.f, 0.f, 1.f};
@@ -115,10 +108,10 @@ Room entityRoomNew(float size, float height) {
 	ts[15] = (Vec2){0.f, 0.f};
 
 	// Back wall
-	vs[16] = (Vec3){ size / 2.f, 0.f,    -size / 2.f};
-	vs[17] = (Vec3){ size / 2.f, height, -size / 2.f};
-	vs[18] = (Vec3){-size / 2.f, height, -size / 2.f};
-	vs[19] = (Vec3){-size / 2.f,  0.f,   -size / 2.f};
+	vs[16] = (Vec3){ size / 2.f, 0.f,    size / 2.f};
+	vs[17] = (Vec3){ size / 2.f, height, size / 2.f};
+	vs[18] = (Vec3){-size / 2.f, height, size / 2.f};
+	vs[19] = (Vec3){-size / 2.f,  0.f,   size / 2.f};
 
 	cs[16] = (Color){1.f, 0.f, 0.f, 1.f};
 	cs[17] = (Color){1.f, 0.f, 0.f, 1.f};

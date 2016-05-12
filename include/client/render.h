@@ -30,11 +30,12 @@ void renderInit(void);
 void renderClear(void);
 
 Shader renderShaderLoad(const char* vpath, const char* fpath);
+void renderShaderSetTransform(Shader* s, Transform t);
 void renderShaderSetModel(Shader* s, Mat4* model);
 void renderShaderSetView(Shader* s, Mat4* view);
 void renderShaderSetProj(Shader* s, Mat4* proj);
 void renderShaderBind(Shader* s);
 
-Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, int* is);
+Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, unsigned int* is);
 Mesh renderMeshLoad(const char* path);
 void renderMeshDraw(Shader* s, Mesh* m);

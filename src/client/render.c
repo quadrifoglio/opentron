@@ -8,9 +8,6 @@
 void renderInit(void) {
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 
-	glFrontFace(GL_CW);
-	glCullFace(GL_BACK);
-
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_FRAMEBUFFER_SRGB);
@@ -88,6 +85,9 @@ Shader renderShaderLoad(const char* vpath, const char* fpath) {
 		return s;
 	}
 
+	glDeleteShader(vsid);
+	glDeleteShader(fsid);
+
 	glUseProgram(s.program);
 
 	s.model = glGetUniformLocation(s.program, "model");
@@ -106,6 +106,11 @@ Shader renderShaderLoad(const char* vpath, const char* fpath) {
 	return s;
 }
 
+void renderShaderSetTransform(Shader* s, Transform t) {
+	Mat4 m = mathTransformMatrix(t);
+	renderShaderSetModel(s, &m);
+}
+
 void renderShaderSetModel(Shader* s, Mat4* model) {
 	glUniformMatrix4fv(s->model, 1, GL_TRUE, (const GLfloat*)model->m);
 }
@@ -122,7 +127,7 @@ void renderShaderBind(Shader* s) {
 	glUseProgram(s->program);
 }
 
-Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, int* is) {
+Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, unsigned int* is) {
 	Mesh m;
 	m.size = in;
 
@@ -137,7 +142,7 @@ Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, in
 	glBufferData(GL_ARRAY_BUFFER, vn * 2 * sizeof(float), texs, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, in * sizeof(int), is, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, in * sizeof(unsigned int), is, GL_STATIC_DRAW);
 
 	return m;
 }
@@ -157,7 +162,7 @@ Mesh renderMeshLoad(const char* path) {
 	Vec2* ts = 0;
 	size_t nvs = 0;
 
-	int* is = 0;
+	unsigned int* is = 0;
 	size_t nis = 0;
 
 	char* line = data;

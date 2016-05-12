@@ -20,7 +20,6 @@ typedef struct {
 } Room;
 
 Entity entityNew(Mesh mesh);
-void entityDraw(Entity* e, Shader* s);
 
 Camera entityCameraNew();
 void entityCameraUse(Camera* c, Shader* s);

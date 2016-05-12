@@ -255,13 +255,14 @@ Mat4 mathMat4Identity(void) {
 
 Mat4 mathMat4Perspective(float fov, float r, float zNear, float zFar) {
 	Mat4 m = mathMat4Identity();
-	float tanHalfFov = tanf((fov * PI / 180.f) / 2.f);
+	float f = 1.f / tanf((fov * PI / 180.f) / 2.f);
 
-	m.m[0][0] = 1.f / (tanHalfFov * r);
-	m.m[1][1] = 1.f / tanHalfFov;
-	m.m[2][2] = (-zNear - zFar) / (zNear - zFar);
+	m.m[0][0] = f / r;
+	m.m[1][1] = f;
+	m.m[2][2] = (zFar + zNear) / (zNear - zFar);
 	m.m[2][3] = 2 * zFar * zNear / (zNear - zFar);
-	m.m[3][2] = 1.f;
+	m.m[3][2] = -1.f;
+	m.m[3][3] = 0.f;
 
 	return m;
 }
@@ -404,7 +405,7 @@ Transform mathTransform(Vec3 t, Vec3 r, Vec3 s) {
 
 Mat4 mathTransformMatrix(Transform tr) {
 	Mat4 t = mathMat4Translation(tr.translation);
-	Mat4 r = mathMat4Rotation(tr.rotation);
+	Mat4 r = mathMat4Identity(); // TODO: Implement rotation
 	Mat4 s = mathMat4Scale(tr.scale);
 
 	return mathMat4MulM(mathMat4MulM(s, r), t);
