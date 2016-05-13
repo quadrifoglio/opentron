@@ -16,7 +16,12 @@ typedef struct {
 
 typedef struct {
 	float size;
-	Mesh mesh;
+
+	Texture groundTex;
+	Mesh groundMesh;
+
+	Texture wallsTex;
+	Mesh wallsMesh;
 } Room;
 
 Entity entityNew(Mesh mesh);

@@ -3,14 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "lib/stb_image.h"
+
 #include "utils.h"
 
 void renderInit(void) {
-	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClearColor(0.52f, 0.8f, 0.92f, 1.f);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_FRAMEBUFFER_SRGB);
+
+	glEnable(GL_MULTISAMPLE);
 }
 
 void renderClear(void) {
@@ -127,6 +133,32 @@ void renderShaderBind(Shader* s) {
 	glUseProgram(s->program);
 }
 
+Texture renderTextureLoad(const char* path) {
+	int w, h, n;
+	void* data = stbi_load(path, &w, &h, &n, 4);
+	if(!data) {
+		fprintf(stderr, "Can not load texture %s\n", path);
+		return 0;
+	}
+
+	GLuint tex;
+
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+	free(data);
+	return tex;
+}
+
 Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, unsigned int* is) {
 	Mesh m;
 	m.size = in;
@@ -216,7 +248,11 @@ Mesh renderMeshLoad(const char* path) {
 	return m;
 }
 
-void renderMeshDraw(Shader* s, Mesh* m) {
+void renderMeshDraw(Shader* s, Mesh* m, Texture tex) {
+	if(tex) {
+		glBindTexture(GL_TEXTURE_2D, tex);
+	}
+
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glVertexAttribPointer(s->position, 3, GL_FLOAT, GL_FALSE, 0, 0);
 

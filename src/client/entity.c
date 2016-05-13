@@ -31,99 +31,109 @@ Room entityRoomNew(float size, float height) {
 	Room r;
 	r.size = size;
 
-	unsigned int is[35] = {
-		0, 3, 1, 3, 2, 1,       // Ground
-		4, 7, 5, 7, 6, 5,       // Left wall
-		11, 9, 8, 11, 10, 9,    // Front wall
-		15, 13, 12, 15, 14, 13, // Right wall
-		19, 17, 16, 19, 18, 17  // Back wall
+	unsigned int groundIs[6] = {
+		0, 3, 1, 3, 2, 1
 	};
 
-	Vec3 vs[20];
-	Color cs[20];
-	Vec2 ts[20];
+	Vec3 groundPs[4];
+	Color groundCs[4];
+	Vec2 groundTs[4];
 
-	// Ground
-	vs[0] = (Vec3){-size / 2.f, 0.f,  size / 2.f};
-	vs[1] = (Vec3){-size / 2.f, 0.f, -size / 2.f};
-	vs[2] = (Vec3){ size / 2.f, 0.f, -size / 2.f};
-	vs[3] = (Vec3){ size / 2.f, 0.f,  size / 2.f};
+	groundPs[0] = (Vec3){-size / 2.f, 0.f,  size / 2.f};
+	groundPs[1] = (Vec3){-size / 2.f, 0.f, -size / 2.f};
+	groundPs[2] = (Vec3){ size / 2.f, 0.f, -size / 2.f};
+	groundPs[3] = (Vec3){ size / 2.f, 0.f,  size / 2.f};
 
-	cs[1] = (Color){1.f, 1.f, 1.f, 1.f};
-	cs[1] = (Color){1.f, 1.f, 1.f, 1.f};
-	cs[2] = (Color){1.f, 1.f, 1.f, 1.f};
-	cs[3] = (Color){1.f, 1.f, 1.f, 1.f};
+	groundCs[0] = (Color){1.f, 1.f, 1.f, 1.f};
+	groundCs[1] = (Color){1.f, 1.f, 1.f, 1.f};
+	groundCs[2] = (Color){1.f, 1.f, 1.f, 1.f};
+	groundCs[3] = (Color){1.f, 1.f, 1.f, 1.f};
 
-	ts[0] = (Vec2){0.f, 0.f};
-	ts[1] = (Vec2){0.f, 0.f};
-	ts[2] = (Vec2){0.f, 0.f};
-	ts[3] = (Vec2){0.f, 0.f};
+	groundTs[0] = (Vec2){0.f, 0.f};
+	groundTs[1] = (Vec2){size, 0.f};
+	groundTs[2] = (Vec2){size, size};
+	groundTs[3] = (Vec2){0.f, size};
+
+	r.groundMesh = renderMeshNew(4, groundPs, groundCs, groundTs, 6, groundIs);
+	r.groundTex = renderTextureLoad("res/textures/ground.png");
+
+	unsigned int wallsIs[24] = {
+		0, 3, 1, 3, 2, 1,
+		4, 7, 5, 7, 6, 5,
+		8, 11, 9, 11, 10, 9,
+		12, 15, 13, 15, 14, 13
+	};
+
+	Vec3 wallsPs[16];
+	Color wallsCs[16];
+	Vec2 wallsTs[16];
 
 	// Left wall
-	vs[4] = (Vec3){-size / 2.f, 0.f,     size / 2.f};
-	vs[5] = (Vec3){-size / 2.f, height,  size / 2.f};
-	vs[6] = (Vec3){-size / 2.f, height,  -size / 2.f};
-	vs[7] = (Vec3){-size / 2.f, 0.f,     -size / 2.f};
+	wallsPs[0] = (Vec3){-size / 2.f, 0.f,     size / 2.f};
+	wallsPs[1] = (Vec3){-size / 2.f, height,  size / 2.f};
+	wallsPs[2] = (Vec3){-size / 2.f, height, -size / 2.f};
+	wallsPs[3] = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
 
-	cs[4] = (Color){0.f, 1.f, 0.f, 1.f};
-	cs[5] = (Color){0.f, 1.f, 0.f, 1.f};
-	cs[6] = (Color){0.f, 1.f, 0.f, 1.f};
-	cs[7] = (Color){0.f, 1.f, 0.f, 1.f};
+	wallsCs[0] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[1] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[2] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[3] = (Color){1.f, 1.f, 1.f, 1.f};
 
-	ts[4] = (Vec2){0.f, 0.f};
-	ts[5] = (Vec2){0.f, 0.f};
-	ts[6] = (Vec2){0.f, 0.f};
-	ts[7] = (Vec2){0.f, 0.f};
+	wallsTs[0] = (Vec2){0.f, 0.f};
+	wallsTs[1] = (Vec2){0.f, 1.f};
+	wallsTs[2] = (Vec2){1.f, 1.f};
+	wallsTs[3] = (Vec2){1.f, 0.f};
 
 	// Front wall
-	vs[8]  = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
-	vs[9]  = (Vec3){-size / 2.f, height, -size / 2.f};
-	vs[10] = (Vec3){ size / 2.f, height, -size / 2.f};
-	vs[11] = (Vec3){ size / 2.f,  0.f,   -size / 2.f};
+	wallsPs[4]  = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
+	wallsPs[5]  = (Vec3){-size / 2.f, height, -size / 2.f};
+	wallsPs[6] = (Vec3){ size / 2.f, height,  -size / 2.f};
+	wallsPs[7] = (Vec3){ size / 2.f,  0.f,    -size / 2.f};
 
-	cs[8]  = (Color){0.f, 0.f, 1.f, 1.f};
-	cs[9]  = (Color){0.f, 0.f, 1.f, 1.f};
-	cs[10] = (Color){0.f, 0.f, 1.f, 1.f};
-	cs[11] = (Color){0.f, 0.f, 1.f, 1.f};
+	wallsCs[4] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[5] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[6] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[7] = (Color){1.f, 1.f, 1.f, 1.f};
 
-	ts[8]  = (Vec2){0.f, 0.f};
-	ts[9]  = (Vec2){0.f, 0.f};
-	ts[10] = (Vec2){0.f, 0.f};
-	ts[11] = (Vec2){0.f, 0.f};
+	wallsTs[4] = (Vec2){0.f, 0.f};
+	wallsTs[5] = (Vec2){0.f, 1.f};
+	wallsTs[6] = (Vec2){1.f, 1.f};
+	wallsTs[7] = (Vec2){1.f, 0.f};
 
 	// Right wall
-	vs[12] = (Vec3){size / 2.f, 0.f,    -size / 2.f};
-	vs[13] = (Vec3){size / 2.f, height, -size / 2.f};
-	vs[14] = (Vec3){size / 2.f, height,  size / 2.f};
-	vs[15] = (Vec3){size / 2.f, 0.f,     size / 2.f};
+	wallsPs[8] = (Vec3){size / 2.f, 0.f,    -size / 2.f};
+	wallsPs[9] = (Vec3){size / 2.f, height, -size / 2.f};
+	wallsPs[10] = (Vec3){size / 2.f, height, size / 2.f};
+	wallsPs[11] = (Vec3){size / 2.f, 0.f,    size / 2.f};
 
-	cs[12] = (Color){1.f, 1.f, 0.f, 1.f};
-	cs[13] = (Color){1.f, 1.f, 0.f, 1.f};
-	cs[14] = (Color){1.f, 1.f, 0.f, 1.f};
-	cs[15] = (Color){1.f, 1.f, 0.f, 1.f};
+	wallsCs[8] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[9] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[10] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[11] = (Color){1.f, 1.f, 1.f, 1.f};
 
-	ts[12] = (Vec2){0.f, 0.f};
-	ts[13] = (Vec2){0.f, 0.f};
-	ts[14] = (Vec2){0.f, 0.f};
-	ts[15] = (Vec2){0.f, 0.f};
+	wallsTs[8] = (Vec2){0.f, 0.f};
+	wallsTs[9] = (Vec2){0.f, 1.f};
+	wallsTs[10] = (Vec2){1.f, 1.f};
+	wallsTs[11] = (Vec2){1.f, 0.f};
 
 	// Back wall
-	vs[16] = (Vec3){ size / 2.f, 0.f,    size / 2.f};
-	vs[17] = (Vec3){ size / 2.f, height, size / 2.f};
-	vs[18] = (Vec3){-size / 2.f, height, size / 2.f};
-	vs[19] = (Vec3){-size / 2.f,  0.f,   size / 2.f};
+	wallsPs[12] = (Vec3){ size / 2.f, 0.f,    size / 2.f};
+	wallsPs[13] = (Vec3){ size / 2.f, height, size / 2.f};
+	wallsPs[14] = (Vec3){-size / 2.f, height, size / 2.f};
+	wallsPs[15] = (Vec3){-size / 2.f,  0.f,   size / 2.f};
 
-	cs[16] = (Color){1.f, 0.f, 0.f, 1.f};
-	cs[17] = (Color){1.f, 0.f, 0.f, 1.f};
-	cs[18] = (Color){1.f, 0.f, 0.f, 1.f};
-	cs[19] = (Color){1.f, 0.f, 0.f, 1.f};
+	wallsCs[12] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[13] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[14] = (Color){1.f, 1.f, 1.f, 1.f};
+	wallsCs[15] = (Color){1.f, 1.f, 1.f, 1.f};
 
-	ts[16] = (Vec2){0.f, 0.f};
-	ts[17] = (Vec2){0.f, 0.f};
-	ts[18] = (Vec2){0.f, 0.f};
-	ts[19] = (Vec2){0.f, 0.f};
+	wallsTs[12] = (Vec2){0.f, 0.f};
+	wallsTs[13] = (Vec2){0.f, 1.f};
+	wallsTs[14] = (Vec2){1.f, 1.f};
+	wallsTs[15] = (Vec2){1.f, 0.f};
 
-	r.mesh = renderMeshNew(20, vs, cs, ts, 35, is);
+	r.wallsMesh = renderMeshNew(16, wallsPs, wallsCs, wallsTs, 24, wallsIs);
+	r.wallsTex = renderTextureLoad("res/textures/walls.png");
 
 	return r;
 }

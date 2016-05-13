@@ -35,8 +35,9 @@ int main(int argc, char** argv) {
 	}
 
 	glfwWindowHint(GLFW_RESIZABLE, 0);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "Tron", 0, 0);
+	GLFWwindow* window = glfwCreateWindow(640, 480, "Tron", 0, 0);
 	if(!window) {
 		fprintf(stderr, "Error: GLFW: can not create window\n");
 		glfwTerminate();

@@ -9,7 +9,7 @@ Game gameInit(int width, int height) {
 	g.shader = renderShaderLoad("res/shaders/basic.vertex", "res/shaders/basic.fragment");
 
 	Mat4 identity = mathMat4Identity();
-	Mat4 proj = mathMat4Perspective(70.f, (float)width / (float)height, 0.1f, 100.f);
+	Mat4 proj = mathMat4Perspective(60.f, (float)width / (float)height, 0.1f, 51.f);
 
 	renderShaderSetModel(&g.shader, &identity);
 	renderShaderSetView(&g.shader, &identity);
@@ -20,7 +20,7 @@ Game gameInit(int width, int height) {
 	g.cam.target = (Vec3){0.f, 1.f, -1.f};
 
 	g.moto = entityNew(renderMeshLoad("res/models/cube.obj"));
-	g.room = entityRoomNew(50.f, 12.f);
+	g.room = entityRoomNew(50.f, 15.f);
 
 	return g;
 }
@@ -107,8 +107,9 @@ void gameRender(Game* g) {
 	renderShaderSetModel(&g->shader, &identity);
 	entityCameraUse(&g->cam, &g->shader);
 
-	renderMeshDraw(&g->shader, &g->room.mesh);
+	renderMeshDraw(&g->shader, &g->room.groundMesh, g->room.groundTex);
+	renderMeshDraw(&g->shader, &g->room.wallsMesh, g->room.wallsTex);
 
-	renderShaderSetTransform(&g->shader, g->moto.transform);
-	renderMeshDraw(&g->shader, &g->moto.mesh);
+	/*renderShaderSetTransform(&g->shader, g->moto.transform);
+	renderMeshDraw(&g->shader, &g->moto.mesh, 0);*/
 }
