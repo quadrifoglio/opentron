@@ -308,7 +308,7 @@ Player entityPlayerNew(Vec3 pos) {
 
 	p.size = (Vec3){width, height, length};
 	p.pos = pos;
-	p.dir = (Vec3){1.f, 0.f, 0.f};
+	p.dir = (Vec3){-1.f, 0.f, 0.f};
 	p.speed = speed;
 
 	return p;
@@ -322,6 +322,12 @@ void entityPlayerUpdate(float dt, Player* p, Room* r, WallGroup* w) {
 	}
 	else if(p->dir.x < 0.f) {
 		p->e.tr.rotation.y = 90.f;
+	}
+	else if(p->dir.z > 0.f) {
+		p->e.tr.rotation.y = 0.f;
+	}
+	else if(p->dir.z < 0.f) {
+		p->e.tr.rotation.y = 180.f;
 	}
 
 	float nx = p->pos.x + (p->dir.x * p->speed * dt);

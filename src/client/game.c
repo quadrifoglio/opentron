@@ -27,7 +27,7 @@ Game gameInit(int width, int height) {
 	g.cam.position = (Vec3){0.f, 1.f, 0.f};
 	g.cam.target = (Vec3){0.f, 1.f, -1.f};
 
-	g.player = entityPlayerNew((Vec3){-20.f, 0.3f, 0.f});
+	g.player = entityPlayerNew((Vec3){20.f, 0.3f, 0.f});
 
 	g.walls.xWallCount = 1;
 	g.walls.zWallCount = 1;
@@ -104,12 +104,19 @@ void gameUpdate(Game* g, double dt) {
 		dx = 3.f * dt;
 	}
 
-	g->cam.position.x += dx;
+	/*g->cam.position.x += dx;
 	g->cam.position.z += dz;
 	g->cam.target.x += dx;
-	g->cam.target.z += dz;
+	g->cam.target.z += dz;*/
 
 	entityPlayerUpdate(dt, &g->player, &g->room, &g->walls);
+
+	g->cam.position.x = g->player.pos.x - (3.f * g->player.dir.x);
+	g->cam.position.y = 1.5f;
+	g->cam.position.z = g->player.pos.z - (3.f * g->player.dir.z);
+
+	g->cam.target.x = g->player.pos.x;
+	g->cam.target.z = g->player.pos.z;
 }
 
 void gameRender(Game* g) {
