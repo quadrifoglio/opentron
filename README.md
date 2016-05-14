@@ -2,7 +2,7 @@
 
 Open source Tron-style game
 
-![screenshot](http://raw.githubusercontent.com/quadrifoglio/opentron/master/res/screenshots/1.png)
+![screenshot](https://raw.githubusercontent.com/quadrifoglio/opentron/master/res/screenshots/1.png)
 
 ## Building
 
