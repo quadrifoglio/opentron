@@ -120,9 +120,7 @@ void gameRender(Game* g) {
 	renderShaderSetModel(&g->shader, &identity);
 	entityCameraUse(&g->cam, &g->shader);
 
-	renderMeshDraw(&g->shader, &g->room.groundMesh, g->whiteTex);
-	renderMeshDraw(&g->shader, &g->room.gridMesh, g->whiteTex);
-	renderMeshDraw(&g->shader, &g->room.wallsMesh, g->wallsTex);
+	entityRoomRender(&g->shader, &g->room, g->whiteTex, g->whiteTex, g->wallsTex);
 
 	renderShaderSetTransform(&g->shader, g->player.e.tr);
 	renderMeshDraw(&g->shader, &g->player.e.mesh, g->whiteTex);

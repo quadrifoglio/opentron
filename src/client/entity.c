@@ -62,63 +62,52 @@ Room entityRoomNew(float size, float height) {
 	r.groundMesh = renderMeshNew(4, groundPs, groundCs, groundTs, 6, groundIs);
 
 	// Ground grid
-	unsigned int* gridIs = malloc(((int)size * 4 + 2) * sizeof(int));
-	Vec3* gridPs = malloc(((int)size * 4 + 2) * sizeof(Vec3));
-	Color* gridCs = malloc(((int)size * 4 + 2) * sizeof(Color));
-	Vec2* gridTs = malloc(((int)size * 4 + 2) * sizeof(Vec2));
+	unsigned int gridIs[2] = {
+		0, 1,
+	};
 
-	int i = 0;
-	for(float x = -size / 2.f; x < size / 2.f; ++x) {
-		gridIs[i] = i;
-		gridIs[i+1] = i+1;
+	Vec3 gridPs[6];
+	Color gridCs[6];
+	Vec2 gridTs[6];
 
-		gridPs[i] = (Vec3){x, 0.f, size / 2.f};
-		gridPs[i+1] = (Vec3){x, 0.f, -size / 2.f};
+	// x-axis line
+	gridPs[0] = (Vec3){-size / 2.f, 0.f, 0.f};
+	gridPs[1] = (Vec3){ size / 2.f, 0.f, 0.f};
 
-		gridCs[i] = (Color){0.12f, 0.64f, 0.69f, 1.f};
-		gridCs[i+1] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+	gridCs[0] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+	gridCs[1] = (Color){0.12f, 0.64f, 0.69f, 1.f};
 
-		gridTs[i] = (Vec2){0.f, 0.f};
-		gridTs[i+1] = (Vec2){0.f, 0.f};
+	gridTs[0] = (Vec2){0.f, 0.f};
+	gridTs[1] = (Vec2){0.f, 0.f};
 
-		i += 2;
-	}
+	// z-axis line
+	gridPs[2] = (Vec3){0.f, 0.f, -size / 2.f};
+	gridPs[3] = (Vec3){0.f, 0.f,  size / 2.f};
 
-	for(float z = -size / 2.f; z < size / 2.f; ++z) {
-		gridIs[i] = i;
-		gridIs[i+1] = i+1;
+	gridCs[2] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+	gridCs[3] = (Color){0.12f, 0.64f, 0.69f, 1.f};
 
-		gridPs[i] = (Vec3){-size / 2.f, 0.f, z};
-		gridPs[i+1] = (Vec3){size / 2.f, 0.f, z};
+	gridTs[2] = (Vec2){0.f, 0.f};
+	gridTs[3] = (Vec2){0.f, 0.f};
 
-		gridCs[i] = (Color){0.12f, 0.64f, 0.69f, 1.f};
-		gridCs[i+1] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+	// y-axis line (red)
+	gridPs[4] = (Vec3){0.f, 0.f, 0.f};
+	gridPs[5] = (Vec3){0.f, height, 0.f};
 
-		gridTs[i] = (Vec2){0.f, 0.f};
-		gridTs[i+1] = (Vec2){0.f, 0.f};
+	gridCs[4] = (Color){1.f, 0.f, 0.f, 1.f};
+	gridCs[5] = (Color){1.f, 0.f, 0.f, 1.f};
 
-		i += 2;
-	}
+	gridTs[4] = (Vec2){0.f, 0.f};
+	gridTs[5] = (Vec2){0.f, 0.f};
 
-	gridIs[i] = i;
-	gridIs[i+1] = i+1;
+	r.xGridMesh = renderMeshNew(2, gridPs, gridCs, gridTs, 2, gridIs);
+	r.xGridMesh.primitive = GL_LINES;
 
-	gridPs[i] = (Vec3){0.f, 0.f, 0.f};
-	gridPs[i+1] = (Vec3){0.f, height, 0.f};
+	r.yGridMesh = renderMeshNew(2, gridPs + 4, gridCs + 4, gridTs + 4, 2, gridIs);
+	r.yGridMesh.primitive = GL_LINES;
 
-	gridCs[i] = (Color){1.f, 0.f, 0.f, 1.f};
-	gridCs[i+1] = (Color){1.f, 0.f, 0.f, 1.f};
-
-	gridTs[i] = (Vec2){0.f, 0.f};
-	gridTs[i+1] = (Vec2){0.f, 0.f};
-
-	r.gridMesh = renderMeshNew((int)size * 4 + 2, gridPs, gridCs, gridTs, (int)size * 4 + 2, gridIs);
-	r.gridMesh.primitive = GL_LINES;
-
-	free(gridIs);
-	free(gridPs);
-	free(gridCs);
-	free(gridTs);
+	r.zGridMesh = renderMeshNew(2, gridPs + 2, gridCs + 2, gridTs + 2, 2, gridIs);
+	r.zGridMesh.primitive = GL_LINES;
 
 	// Walls
 	unsigned int wallsIs[24] = {
@@ -199,6 +188,35 @@ Room entityRoomNew(float size, float height) {
 	r.wallsMesh = renderMeshNew(16, wallsPs, wallsCs, wallsTs, 24, wallsIs);
 
 	return r;
+}
+
+void entityRoomRender(Shader* s, Room* r, Texture texGround, Texture texGrid, Texture texWalls) {
+	Mat4 m;
+
+	renderMeshDraw(s, &r->groundMesh, texGround);
+	renderMeshDraw(s, &r->wallsMesh, texWalls);
+
+	float n = -r->size / 2.f;
+	for(int i = 0; i < (int)r->size; ++i) {
+		m = mathMat4Translation((Vec3){0.f, 0.f, n});
+		renderShaderSetModel(s, &m);
+		renderMeshDraw(s, &r->xGridMesh, texGrid);
+
+		n++;
+	}
+
+	n = -r->size / 2.f;
+	for(int i = 0; i < (int)r->size; ++i) {
+		m = mathMat4Translation((Vec3){n, 0.f, 0.f});
+		renderShaderSetModel(s, &m);
+		renderMeshDraw(s, &r->zGridMesh, texGrid);
+
+		n++;
+	}
+
+	m = mathMat4Translation((Vec3){0.f, 0.f, 0.f});
+	renderShaderSetModel(s, &m);
+	renderMeshDraw(s, &r->yGridMesh, texGrid);
 }
 
 Wall entityWallNew(Vec3 start, Vec3 end) {

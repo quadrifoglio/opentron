@@ -18,8 +18,11 @@ typedef struct {
 	float size;
 
 	Mesh groundMesh;
-	Mesh gridMesh;
 	Mesh wallsMesh;
+
+	Mesh xGridMesh;
+	Mesh yGridMesh;
+	Mesh zGridMesh;
 } Room;
 
 typedef struct {
@@ -53,6 +56,7 @@ void entityCameraUse(Camera* c, Shader* s);
 Mat4 entityCameraMatrix(Camera* c);
 
 Room entityRoomNew(float size, float height);
+void entityRoomRender(Shader* s, Room* r, Texture texGround, Texture texGrid, Texture texWalls);
 
 Wall entityWallNew(Vec3 start, Vec3 end);
 void entityWallRender(Shader* s, Wall* w, Texture t);
