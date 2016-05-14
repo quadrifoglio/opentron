@@ -15,12 +15,23 @@ Game gameInit(int width, int height) {
 	renderShaderSetView(&g.shader, &identity);
 	renderShaderSetProj(&g.shader, &proj);
 
+	g.whiteTex = renderTextureWhite();
+	g.wallsTex = renderTextureLoad("res/textures/walls.png");
+
 	g.cam = entityCameraNew();
 	g.cam.position = (Vec3){0.f, 1.f, 0.f};
 	g.cam.target = (Vec3){0.f, 1.f, -1.f};
 
 	g.moto = entityNew(renderMeshLoad("res/models/cube.obj"));
+	g.moto.transform.translation.x = 0.f;
+	g.moto.transform.translation.y = 0.5f;
+	g.moto.transform.translation.z = 0.f;
+
 	g.room = entityRoomNew(50.f, 15.f);
+	g.moto.transform.translation.x = 1.f;
+	g.moto.transform.scale.x = 0.5f;
+	g.moto.transform.scale.y = 0.5f;
+	g.moto.transform.scale.z = 0.5f;
 
 	return g;
 }
@@ -46,6 +57,13 @@ void gameMouseMoved(Game* g, float x, float y) {
 	g->mousePrev = g->mouse;
 	g->mouse.x = x;
 	g->mouse.y = y;
+
+	Vec2 mouseDelta = mathVec2SubV(g->mouse, g->mousePrev);
+	Vec4 t = mathMat4MulV(mathMat4RotationV(mouseDelta.x / 4.f, (Vec3){0.f, 1.f, 0.f}), (Vec4){g->cam.target.x, g->cam.target.y, g->cam.target.z, 0.f});
+
+	g->cam.target.x = t.x;
+	g->cam.target.y = t.y;
+	g->cam.target.z = t.z;
 }
 
 void gameKeyReleased(Game* g, int key) {
@@ -66,6 +84,8 @@ void gameKeyReleased(Game* g, int key) {
 }
 
 void gameUpdate(Game* g, double dt) {
+	static float r = 0.f;
+
 	float dx = 0.f;
 	float dz = 0.f;
 
@@ -88,15 +108,8 @@ void gameUpdate(Game* g, double dt) {
 	g->cam.target.x += dx;
 	g->cam.target.z += dz;
 
-	//g->cam.target = mathVec3Norm(mathVec3SubV(g->cam.position, g->cam.target));
-
-	// TODO: Fix mouse-based camera rotation
-	/*Vec2 mouseDelta = mathVec2SubV(g->mouse, g->mousePrev);
-	Vec4 t = mathMat4MulV(mathMat4RotationV(mouseDelta.x / 2.f, (Vec3){0.f, 1.f, 0.f}), (Vec4){g->cam.target.x, g->cam.target.y, g->cam.target.z, 0.f});
-
-	g->cam.target.x = t.x;
-	g->cam.target.y = t.y;
-	g->cam.target.z = t.z;*/
+	r += 360.f * dt;
+	g->moto.transform.rotation.y = r;
 }
 
 void gameRender(Game* g) {
@@ -107,9 +120,10 @@ void gameRender(Game* g) {
 	renderShaderSetModel(&g->shader, &identity);
 	entityCameraUse(&g->cam, &g->shader);
 
-	renderMeshDraw(&g->shader, &g->room.groundMesh, g->room.groundTex);
-	renderMeshDraw(&g->shader, &g->room.wallsMesh, g->room.wallsTex);
+	renderMeshDraw(&g->shader, &g->room.groundMesh, g->whiteTex);
+	renderMeshDraw(&g->shader, &g->room.gridMesh, g->whiteTex);
+	renderMeshDraw(&g->shader, &g->room.wallsMesh, g->wallsTex);
 
-	/*renderShaderSetTransform(&g->shader, g->moto.transform);
-	renderMeshDraw(&g->shader, &g->moto.mesh, 0);*/
+	renderShaderSetTransform(&g->shader, g->moto.transform);
+	renderMeshDraw(&g->shader, &g->moto.mesh, g->whiteTex);
 }

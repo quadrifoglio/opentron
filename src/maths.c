@@ -312,9 +312,9 @@ Mat4 mathMat4Rotation(Vec3 v) {
 	Mat4 ry = mathMat4Identity();
 	Mat4 rz = mathMat4Identity();
 
-	float x = v.x * 180.f / PI;
-	float y = v.y * 180.f / PI;
-	float z = v.z * 180.f / PI;
+	float x = v.x * PI / 180.f;
+	float y = v.y * PI / 180.f;
+	float z = v.z * PI / 180.f;
 
 	rz.m[0][0] = cosf(z);
 	rz.m[0][1] = -sinf(z);
@@ -331,7 +331,7 @@ Mat4 mathMat4Rotation(Vec3 v) {
 	ry.m[0][2] = -sinf(y);
 	ry.m[2][2] = cosf(y);
 
-	return mathMat4MulM(rz, mathMat4MulM(ry, rx));
+	return mathMat4MulM(mathMat4MulM(rx, ry), rz);
 }
 
 Mat4 mathMat4RotationV(float a, const Vec3 b) {
@@ -405,8 +405,8 @@ Transform mathTransform(Vec3 t, Vec3 r, Vec3 s) {
 
 Mat4 mathTransformMatrix(Transform tr) {
 	Mat4 t = mathMat4Translation(tr.translation);
-	Mat4 r = mathMat4Identity(); // TODO: Implement rotation
+	Mat4 r = mathMat4Rotation(tr.rotation);
 	Mat4 s = mathMat4Scale(tr.scale);
 
-	return mathMat4MulM(mathMat4MulM(s, r), t);
+	return mathMat4MulM(mathMat4MulM(t, r), s);
 }

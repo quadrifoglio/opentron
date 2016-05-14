@@ -14,7 +14,6 @@ void renderInit(void) {
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	glEnable(GL_MULTISAMPLE);
 }
@@ -133,6 +132,25 @@ void renderShaderBind(Shader* s) {
 	glUseProgram(s->program);
 }
 
+Texture renderTextureWhite(void) {
+	unsigned char data[4] = { 255, 255, 255, 255 };
+	Texture tex;
+
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return tex;
+}
+
 Texture renderTextureLoad(const char* path) {
 	int w, h, n;
 	void* data = stbi_load(path, &w, &h, &n, 4);
@@ -156,12 +174,15 @@ Texture renderTextureLoad(const char* path) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	return tex;
 }
 
 Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, unsigned int* is) {
 	Mesh m;
 	m.size = in;
+	m.primitive = GL_TRIANGLES;
 
 	glGenBuffers(4, &m.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m.vbo);
@@ -181,6 +202,7 @@ Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, un
 
 Mesh renderMeshLoad(const char* path) {
 	Mesh m = {0};
+	m.primitive = GL_TRIANGLES;
 
 	char* data = fileGetContentStr(path);
 	if(!data) {
@@ -249,9 +271,7 @@ Mesh renderMeshLoad(const char* path) {
 }
 
 void renderMeshDraw(Shader* s, Mesh* m, Texture tex) {
-	if(tex) {
-		glBindTexture(GL_TEXTURE_2D, tex);
-	}
+	glBindTexture(GL_TEXTURE_2D, tex);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glVertexAttribPointer(s->position, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -263,5 +283,5 @@ void renderMeshDraw(Shader* s, Mesh* m, Texture tex) {
 	glVertexAttribPointer(s->tex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ibo);
-	glDrawElements(GL_TRIANGLES, m->size, GL_UNSIGNED_INT, 0);
+	glDrawElements(m->primitive, m->size, GL_UNSIGNED_INT, 0);
 }

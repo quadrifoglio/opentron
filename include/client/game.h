@@ -19,6 +19,9 @@ typedef struct {
 	int width, height;
 	Shader shader;
 
+	Texture whiteTex;
+	Texture wallsTex;
+
 	Mesh cubeMesh;
 	Camera cam;
 

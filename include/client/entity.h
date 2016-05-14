@@ -17,10 +17,8 @@ typedef struct {
 typedef struct {
 	float size;
 
-	Texture groundTex;
 	Mesh groundMesh;
-
-	Texture wallsTex;
+	Mesh gridMesh;
 	Mesh wallsMesh;
 } Room;
 

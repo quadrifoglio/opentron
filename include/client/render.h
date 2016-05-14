@@ -24,6 +24,7 @@ typedef struct {
 typedef GLuint Texture;
 
 typedef struct {
+	GLenum primitive;
 	GLuint vbo, cbo, tbo, ibo;
 	size_t size;
 } Mesh;
@@ -38,6 +39,7 @@ void renderShaderSetView(Shader* s, Mat4* view);
 void renderShaderSetProj(Shader* s, Mat4* proj);
 void renderShaderBind(Shader* s);
 
+Texture renderTextureWhite(void);
 Texture renderTextureLoad(const char* path);
 
 Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, unsigned int* is);

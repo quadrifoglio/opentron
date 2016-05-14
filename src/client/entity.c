@@ -1,5 +1,7 @@
 #include "client/entity.h"
 
+#include <stdlib.h>
+
 Entity entityNew(Mesh mesh) {
 	Entity e;
 	e.mesh = mesh;
@@ -31,6 +33,7 @@ Room entityRoomNew(float size, float height) {
 	Room r;
 	r.size = size;
 
+	// Ground
 	unsigned int groundIs[6] = {
 		0, 3, 1, 3, 2, 1
 	};
@@ -44,19 +47,66 @@ Room entityRoomNew(float size, float height) {
 	groundPs[2] = (Vec3){ size / 2.f, 0.f, -size / 2.f};
 	groundPs[3] = (Vec3){ size / 2.f, 0.f,  size / 2.f};
 
-	groundCs[0] = (Color){1.f, 1.f, 1.f, 1.f};
-	groundCs[1] = (Color){1.f, 1.f, 1.f, 1.f};
-	groundCs[2] = (Color){1.f, 1.f, 1.f, 1.f};
-	groundCs[3] = (Color){1.f, 1.f, 1.f, 1.f};
+	groundCs[0] = (Color){0.03f, 0.07f, 0.09f, 1.f};
+	groundCs[1] = (Color){0.03f, 0.07f, 0.09f, 1.f};
+	groundCs[2] = (Color){0.03f, 0.07f, 0.09f, 1.f};
+	groundCs[3] = (Color){0.03f, 0.07f, 0.09f, 1.f};
 
 	groundTs[0] = (Vec2){0.f, 0.f};
-	groundTs[1] = (Vec2){size, 0.f};
-	groundTs[2] = (Vec2){size, size};
-	groundTs[3] = (Vec2){0.f, size};
+	groundTs[1] = (Vec2){1.f, 0.f};
+	groundTs[2] = (Vec2){1.f, 1.f};
+	groundTs[3] = (Vec2){0.f, 1.f};
 
 	r.groundMesh = renderMeshNew(4, groundPs, groundCs, groundTs, 6, groundIs);
-	r.groundTex = renderTextureLoad("res/textures/ground.png");
 
+	// Ground grid
+	unsigned int* gridIs = malloc((int)size * 4 * sizeof(int));
+	Vec3* gridPs = malloc((int)size * 4 * sizeof(Vec3));
+	Color* gridCs = malloc((int)size * 4 * sizeof(Color));
+	Vec2* gridTs = malloc((int)size * 4 * sizeof(Vec2));
+
+	int i = 0;
+	for(float x = -size / 2.f; x < size / 2.f; ++x) {
+		gridIs[i] = i;
+		gridIs[i+1] = i+1;
+
+		gridPs[i] = (Vec3){x, 0.f, size / 2.f};
+		gridPs[i+1] = (Vec3){x, 0.f, -size / 2.f};
+
+		gridCs[i] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+		gridCs[i+1] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+
+		gridTs[i] = (Vec2){0.f, 0.f};
+		gridTs[i+1] = (Vec2){0.f, 0.f};
+
+		i += 2;
+	}
+
+	for(float z = -size / 2.f; z < size / 2.f; ++z) {
+		gridIs[i] = i;
+		gridIs[i+1] = i+1;
+
+		gridPs[i] = (Vec3){-size / 2.f, 0.f, z};
+		gridPs[i+1] = (Vec3){size / 2.f, 0.f, z};
+
+		gridCs[i] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+		gridCs[i+1] = (Color){0.12f, 0.64f, 0.69f, 1.f};
+
+		gridTs[i] = (Vec2){0.f, 0.f};
+		gridTs[i+1] = (Vec2){0.f, 0.f};
+
+		i += 2;
+	}
+
+	r.gridMesh = renderMeshNew((int)size * 4, gridPs, gridCs, gridTs, (int)size * 4, gridIs);
+	r.gridMesh.primitive = GL_LINES;
+
+	free(gridIs);
+	free(gridPs);
+	free(gridCs);
+	free(gridTs);
+
+	// Walls
 	unsigned int wallsIs[24] = {
 		0, 3, 1, 3, 2, 1,
 		4, 7, 5, 7, 6, 5,
@@ -81,8 +131,8 @@ Room entityRoomNew(float size, float height) {
 
 	wallsTs[0] = (Vec2){0.f, 0.f};
 	wallsTs[1] = (Vec2){0.f, 1.f};
-	wallsTs[2] = (Vec2){1.f, 1.f};
-	wallsTs[3] = (Vec2){1.f, 0.f};
+	wallsTs[2] = (Vec2){2.f, 1.f};
+	wallsTs[3] = (Vec2){2.f, 0.f};
 
 	// Front wall
 	wallsPs[4]  = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
@@ -97,8 +147,8 @@ Room entityRoomNew(float size, float height) {
 
 	wallsTs[4] = (Vec2){0.f, 0.f};
 	wallsTs[5] = (Vec2){0.f, 1.f};
-	wallsTs[6] = (Vec2){1.f, 1.f};
-	wallsTs[7] = (Vec2){1.f, 0.f};
+	wallsTs[6] = (Vec2){2.f, 1.f};
+	wallsTs[7] = (Vec2){2.f, 0.f};
 
 	// Right wall
 	wallsPs[8] = (Vec3){size / 2.f, 0.f,    -size / 2.f};
@@ -113,8 +163,8 @@ Room entityRoomNew(float size, float height) {
 
 	wallsTs[8] = (Vec2){0.f, 0.f};
 	wallsTs[9] = (Vec2){0.f, 1.f};
-	wallsTs[10] = (Vec2){1.f, 1.f};
-	wallsTs[11] = (Vec2){1.f, 0.f};
+	wallsTs[10] = (Vec2){2.f, 1.f};
+	wallsTs[11] = (Vec2){2.f, 0.f};
 
 	// Back wall
 	wallsPs[12] = (Vec3){ size / 2.f, 0.f,    size / 2.f};
@@ -129,11 +179,10 @@ Room entityRoomNew(float size, float height) {
 
 	wallsTs[12] = (Vec2){0.f, 0.f};
 	wallsTs[13] = (Vec2){0.f, 1.f};
-	wallsTs[14] = (Vec2){1.f, 1.f};
-	wallsTs[15] = (Vec2){1.f, 0.f};
+	wallsTs[14] = (Vec2){2.f, 1.f};
+	wallsTs[15] = (Vec2){2.f, 0.f};
 
 	r.wallsMesh = renderMeshNew(16, wallsPs, wallsCs, wallsTs, 24, wallsIs);
-	r.wallsTex = renderTextureLoad("res/textures/walls.png");
 
 	return r;
 }
