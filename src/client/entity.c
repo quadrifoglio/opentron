@@ -6,7 +6,7 @@
 Entity entityNew(Mesh mesh) {
 	Entity e;
 	e.mesh = mesh;
-	e.transform = mathTransform((Vec3){0.f, 0.f, 0.f}, (Vec3){0.f, 0.f, 0.f}, (Vec3){1.f, 1.f, 1.f});
+	e.tr = mathTransform((Vec3){0.f, 0.f, 0.f}, (Vec3){0.f, 0.f, 0.f}, (Vec3){1.f, 1.f, 1.f});
 
 	return e;
 }
@@ -274,4 +274,46 @@ void entityWallRender(Shader* s, Wall* w, Texture tx) {
 	}
 
 	renderCullFace(1);
+}
+
+Player entityPlayerNew(Vec3 pos) {
+	static float width = 0.2f;
+	static float height = 0.6f;
+	static float length = 1.f;
+	static float speed = 3.f; // 3 units / second
+
+	Player p;
+
+	p.e = entityNew(renderMeshLoad("res/models/cube.obj"));
+	p.e.tr.scale = (Vec3){width * 0.5f, height * 0.5f, length * 0.5f};
+
+	p.size = (Vec3){width, height, length};
+	p.pos = pos;
+	p.dir = (Vec3){1.f, 0.f, 0.f};
+	p.speed = speed;
+
+	return p;
+}
+
+void entityPlayerUpdate(float dt, Player* p, Room* r) {
+	if(p->dir.x > 0.f) {
+		p->e.tr.rotation.y = -90.f;
+	}
+	else if(p->dir.x < 0.f) {
+		p->e.tr.rotation.y = 90.f;
+	}
+
+	float nx = p->pos.x + (p->dir.x * p->speed * dt);
+	float nz = p->pos.z + (p->dir.z * p->speed * dt);
+
+	if(fabsf(nx) + p->size.z / 2.f <= r->size / 2.f && fabsf(nz) + p->size.z / 2.f <= r->size / 2.f) {
+		p->pos.x = nx;
+		p->pos.z = nz;
+	}
+	else {
+		if(nx) p->pos.x = p->pos.x > 0.f ? (r->size / 2.f - p->size.z / 2.f) : (-r->size / 2.f + p->size.z / 2.f);
+		if(nz) p->pos.z = p->pos.z > 0.f ? r->size / 2.f - p->size.z / 2.f : (-r->size / 2.f + p->size.z / 2.f);
+	}
+
+	p->e.tr.translation = p->pos;
 }

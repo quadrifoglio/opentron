@@ -20,19 +20,12 @@ Game gameInit(int width, int height) {
 	g.motoWallTex = renderTextureLoad("res/textures/wall.png");
 
 	g.room = entityRoomNew(50.f, 20.f);
-	g.moto.transform.translation.x = 1.f;
-	g.moto.transform.scale.x = 0.5f;
-	g.moto.transform.scale.y = 0.5f;
-	g.moto.transform.scale.z = 0.5f;
 
 	g.cam = entityCameraNew();
 	g.cam.position = (Vec3){0.f, 1.f, 0.f};
 	g.cam.target = (Vec3){0.f, 1.f, -1.f};
 
-	g.moto = entityNew(renderMeshLoad("res/models/cube.obj"));
-	g.moto.transform.translation.x = 0.f;
-	g.moto.transform.translation.y = 0.5f;
-	g.moto.transform.translation.z = 0.f;
+	g.player = entityPlayerNew((Vec3){0.f, 0.3f, 0.f});
 
 	g.wall1 = entityWallNew((Vec3){-25.f, 0.f, 0.f}, (Vec3){25.f, 0.f, 0.f});
 	g.wall2 = entityWallNew((Vec3){0.f, 0.f, 25.f}, (Vec3){0.f, 0.f, -25.f});
@@ -88,8 +81,6 @@ void gameKeyReleased(Game* g, int key) {
 }
 
 void gameUpdate(Game* g, double dt) {
-	static float r = 0.f;
-
 	float dx = 0.f;
 	float dz = 0.f;
 
@@ -112,10 +103,7 @@ void gameUpdate(Game* g, double dt) {
 	g->cam.target.x += dx;
 	g->cam.target.z += dz;
 
-	r += 180.f * dt;
-	g->moto.transform.rotation.x = r;
-	g->moto.transform.rotation.y = r;
-	g->moto.transform.rotation.z = r;
+	entityPlayerUpdate(dt, &g->player, &g->room);
 }
 
 void gameRender(Game* g) {
@@ -130,8 +118,8 @@ void gameRender(Game* g) {
 	renderMeshDraw(&g->shader, &g->room.gridMesh, g->whiteTex);
 	renderMeshDraw(&g->shader, &g->room.wallsMesh, g->wallsTex);
 
-	//renderShaderSetTransform(&g->shader, g->moto.transform);
-	//renderMeshDraw(&g->shader, &g->moto.mesh, g->whiteTex);
+	renderShaderSetTransform(&g->shader, g->player.e.tr);
+	renderMeshDraw(&g->shader, &g->player.e.mesh, g->whiteTex);
 
 	entityWallRender(&g->shader, &g->wall1, g->motoWallTex);
 	entityWallRender(&g->shader, &g->wall2, g->motoWallTex);

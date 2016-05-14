@@ -29,6 +29,7 @@ typedef struct {
 	Room room;
 	Entity moto;
 
+	Player player;
 	Wall wall1, wall2;
 } Game;
 

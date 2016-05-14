@@ -4,7 +4,7 @@
 
 typedef struct {
 	Mesh mesh;
-	Transform transform;
+	Transform tr;
 } Entity;
 
 typedef struct {
@@ -29,6 +29,15 @@ typedef struct {
 	Vec3 end;
 } Wall;
 
+typedef struct {
+	Entity e;
+
+	float speed;
+	Vec3 size;
+	Vec3 pos; // Current position
+	Vec3 dir; // Current direction
+} Player;
+
 Entity entityNew(Mesh mesh);
 
 Camera entityCameraNew();
@@ -39,3 +48,6 @@ Room entityRoomNew(float size, float height);
 
 Wall entityWallNew(Vec3 start, Vec3 end);
 void entityWallRender(Shader* s, Wall* w, Texture t);
+
+Player entityPlayerNew(Vec3 pos);
+void entityPlayerUpdate(float dt, Player* p, Room* r);
