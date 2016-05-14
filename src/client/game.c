@@ -1,5 +1,7 @@
 #include "client/game.h"
 
+#include <stdlib.h>
+
 Game gameInit(int width, int height) {
 	Game g = {0};
 	g.width = width;
@@ -25,10 +27,14 @@ Game gameInit(int width, int height) {
 	g.cam.position = (Vec3){0.f, 1.f, 0.f};
 	g.cam.target = (Vec3){0.f, 1.f, -1.f};
 
-	g.player = entityPlayerNew((Vec3){0.f, 0.3f, 0.f});
+	g.player = entityPlayerNew((Vec3){-20.f, 0.3f, 0.f});
 
-	g.wall1 = entityWallNew((Vec3){-25.f, 0.f, 0.f}, (Vec3){25.f, 0.f, 0.f});
-	g.wall2 = entityWallNew((Vec3){0.f, 0.f, 25.f}, (Vec3){0.f, 0.f, -25.f});
+	g.walls.xWallCount = 1;
+	g.walls.zWallCount = 1;
+	g.walls.xWalls = malloc(sizeof(Wall));
+	g.walls.zWalls = malloc(sizeof(Wall));
+	g.walls.xWalls[0] = entityWallNew((Vec3){-25.f, 0.f, -5.f}, (Vec3){25.f, 0.f, -5.f});
+	g.walls.zWalls[0] = entityWallNew((Vec3){5.f, 0.f, 25.f}, (Vec3){5.f, 0.f, -25.f});
 
 	return g;
 }
@@ -103,7 +109,7 @@ void gameUpdate(Game* g, double dt) {
 	g->cam.target.x += dx;
 	g->cam.target.z += dz;
 
-	entityPlayerUpdate(dt, &g->player, &g->room);
+	entityPlayerUpdate(dt, &g->player, &g->room, &g->walls);
 }
 
 void gameRender(Game* g) {
@@ -121,6 +127,11 @@ void gameRender(Game* g) {
 	renderShaderSetTransform(&g->shader, g->player.e.tr);
 	renderMeshDraw(&g->shader, &g->player.e.mesh, g->whiteTex);
 
-	entityWallRender(&g->shader, &g->wall1, g->motoWallTex);
-	entityWallRender(&g->shader, &g->wall2, g->motoWallTex);
+	for(int i = 0; i < g->walls.xWallCount; ++i) {
+		entityWallRender(&g->shader, &g->walls.xWalls[i], g->motoWallTex);
+	}
+
+	for(int i = 0; i < g->walls.zWallCount; ++i) {
+		entityWallRender(&g->shader, &g->walls.zWalls[i], g->motoWallTex);
+	}
 }

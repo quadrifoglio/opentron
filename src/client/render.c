@@ -212,7 +212,7 @@ Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, un
 	return m;
 }
 
-Mesh renderMeshLoad(const char* path) {
+Mesh renderMeshLoad(const char* path, Color defColor) {
 	Mesh m = {0};
 	m.primitive = GL_TRIANGLES;
 
@@ -220,8 +220,6 @@ Mesh renderMeshLoad(const char* path) {
 	if(!data) {
 		return m;
 	}
-
-	srand(time(0));
 
 	Vec3* vs = 0;
 	Color* cs = 0;
@@ -243,11 +241,8 @@ Mesh renderMeshLoad(const char* path) {
 			vs = realloc(vs, (++nvs) * sizeof(Vec3));
 			vs[nvs - 1] = (Vec3){x, y, z};
 
-			float r = (float)rand() / (float)RAND_MAX;
-			float g = (float)rand() / (float)RAND_MAX;
-			float b = (float)rand() / (float)RAND_MAX;
 			cs = realloc(cs, nvs * sizeof(Color));
-			cs[nvs - 1] = (Color){r, g, b, 1.f};
+			cs[nvs - 1] = defColor;
 
 			ts = realloc(ts, nvs * sizeof(Vec2));
 			ts[nvs - 1] = (Vec2){0.f, 0.f};

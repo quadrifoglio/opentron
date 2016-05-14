@@ -30,7 +30,7 @@ typedef struct {
 	Entity moto;
 
 	Player player;
-	Wall wall1, wall2;
+	WallGroup walls;
 } Game;
 
 Game gameInit(int width, int height);

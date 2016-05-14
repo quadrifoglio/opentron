@@ -46,5 +46,5 @@ Texture renderTextureWhite(void);
 Texture renderTextureLoad(const char* path);
 
 Mesh renderMeshNew(size_t vn, Vec3* poss, Color* cols, Vec2* texs, size_t in, unsigned int* is);
-Mesh renderMeshLoad(const char* path);
+Mesh renderMeshLoad(const char* path, Color defColor);
 void renderMeshDraw(Shader* s, Mesh* m, Texture t);

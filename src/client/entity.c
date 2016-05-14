@@ -1,5 +1,6 @@
 #include "client/entity.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -252,11 +253,11 @@ void entityWallRender(Shader* s, Wall* w, Texture tx) {
 
 	for(int i = 1; i <= n; ++i) {
 		Vec3 tv;
-		tv.x = adx != 0.f ? c : 0.f;
+		tv.x = adx != 0.f ? c : w->end.x;
 		tv.y = 0.f;
-		tv.z = adz != 0.f ? c : 0.f;
+		tv.z = adz != 0.f ? c : w->end.z;
 
-		float alpha = adz != 0.f ? atan2(w->end.z - 1.f, w->end.x - 0.f) : 0.f;
+		float alpha = adz != 0.f ? (adz > 0.f ? (-90.f * PI / 180.f) : (90.f * PI / 180.f)) : 0.f;
 
 		Mat4 t = mathMat4Translation(tv);
 		Mat4 r = mathMat4Rotation((Vec3){0.f, alpha * 180.f / PI, 0.f});
@@ -284,7 +285,7 @@ Player entityPlayerNew(Vec3 pos) {
 
 	Player p;
 
-	p.e = entityNew(renderMeshLoad("res/models/cube.obj"));
+	p.e = entityNew(renderMeshLoad("res/models/cube.obj", (Color){0.f, 0.f, 1.f, 1.f}));
 	p.e.tr.scale = (Vec3){width * 0.5f, height * 0.5f, length * 0.5f};
 
 	p.size = (Vec3){width, height, length};
@@ -295,7 +296,9 @@ Player entityPlayerNew(Vec3 pos) {
 	return p;
 }
 
-void entityPlayerUpdate(float dt, Player* p, Room* r) {
+void entityPlayerUpdate(float dt, Player* p, Room* r, WallGroup* w) {
+	static float collisionDistance = 0.1f;
+
 	if(p->dir.x > 0.f) {
 		p->e.tr.rotation.y = -90.f;
 	}
@@ -306,14 +309,42 @@ void entityPlayerUpdate(float dt, Player* p, Room* r) {
 	float nx = p->pos.x + (p->dir.x * p->speed * dt);
 	float nz = p->pos.z + (p->dir.z * p->speed * dt);
 
-	if(fabsf(nx) + p->size.z / 2.f <= r->size / 2.f && fabsf(nz) + p->size.z / 2.f <= r->size / 2.f) {
-		p->pos.x = nx;
-		p->pos.z = nz;
+	if(fabsf(nx) + p->size.z / 2.f > r->size / 2.f || fabsf(nz) + p->size.z / 2.f > r->size / 2.f) {
+		printf("Map collision ! \n");
+
+		nx = 0.f;
+		nz = 0.f;
 	}
-	else {
-		if(nx) p->pos.x = p->pos.x > 0.f ? (r->size / 2.f - p->size.z / 2.f) : (-r->size / 2.f + p->size.z / 2.f);
-		if(nz) p->pos.z = p->pos.z > 0.f ? r->size / 2.f - p->size.z / 2.f : (-r->size / 2.f + p->size.z / 2.f);
+
+	if(nz != 0.f) {
+		for(int i = 0; i < w->xWallCount; ++i) {
+			Wall wall = w->xWalls[i];
+			float d;
+
+			if(p->dir.z > 0.f) d = (nx + p->size.z / 2.f) - wall.start.z;
+			if(p->dir.z < 0.f) d = (nx - p->size.z / 2.f) - wall.start.z;
+
+			if(fabsf(d) < collisionDistance) {
+				printf("Wall collison !\n");
+			}
+		}
 	}
+	else if(nx != 0.f) {
+		for(int i = 0; i < w->zWallCount; ++i) {
+			Wall wall = w->zWalls[i];
+			float d;
+
+			if(p->dir.x > 0.f) d = (nx + p->size.z / 2.f) - wall.start.x;
+			if(p->dir.x < 0.f) d = (nx - p->size.z / 2.f) - wall.start.x;
+
+			if(fabsf(d) < collisionDistance) {
+				printf("Wall collison !\n");
+			}
+		}
+	}
+
+	p->pos.x = nx;
+	p->pos.z = nz;
 
 	p->e.tr.translation = p->pos;
 }

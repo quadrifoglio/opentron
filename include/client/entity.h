@@ -30,6 +30,14 @@ typedef struct {
 } Wall;
 
 typedef struct {
+	Wall* xWalls;
+	size_t xWallCount;
+
+	Wall* zWalls;
+	size_t zWallCount;
+} WallGroup;
+
+typedef struct {
 	Entity e;
 
 	float speed;
@@ -50,4 +58,4 @@ Wall entityWallNew(Vec3 start, Vec3 end);
 void entityWallRender(Shader* s, Wall* w, Texture t);
 
 Player entityPlayerNew(Vec3 pos);
-void entityPlayerUpdate(float dt, Player* p, Room* r);
+void entityPlayerUpdate(float dt, Player* p, Room* r, WallGroup* w);
