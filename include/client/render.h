@@ -1,6 +1,8 @@
 #pragma once
 
+#include <stdbool.h>
 #include <GL/glew.h>
+
 #include "maths.h"
 
 typedef struct {
@@ -31,6 +33,7 @@ typedef struct {
 
 void renderInit(void);
 void renderClear(void);
+void renderCullFace(bool enabled);
 
 Shader renderShaderLoad(const char* vpath, const char* fpath);
 void renderShaderSetTransform(Shader* s, Transform t);

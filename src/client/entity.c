@@ -1,6 +1,7 @@
 #include "client/entity.h"
 
 #include <stdlib.h>
+#include <math.h>
 
 Entity entityNew(Mesh mesh) {
 	Entity e;
@@ -60,10 +61,10 @@ Room entityRoomNew(float size, float height) {
 	r.groundMesh = renderMeshNew(4, groundPs, groundCs, groundTs, 6, groundIs);
 
 	// Ground grid
-	unsigned int* gridIs = malloc((int)size * 4 * sizeof(int));
-	Vec3* gridPs = malloc((int)size * 4 * sizeof(Vec3));
-	Color* gridCs = malloc((int)size * 4 * sizeof(Color));
-	Vec2* gridTs = malloc((int)size * 4 * sizeof(Vec2));
+	unsigned int* gridIs = malloc(((int)size * 4 + 2) * sizeof(int));
+	Vec3* gridPs = malloc(((int)size * 4 + 2) * sizeof(Vec3));
+	Color* gridCs = malloc(((int)size * 4 + 2) * sizeof(Color));
+	Vec2* gridTs = malloc(((int)size * 4 + 2) * sizeof(Vec2));
 
 	int i = 0;
 	for(float x = -size / 2.f; x < size / 2.f; ++x) {
@@ -98,7 +99,19 @@ Room entityRoomNew(float size, float height) {
 		i += 2;
 	}
 
-	r.gridMesh = renderMeshNew((int)size * 4, gridPs, gridCs, gridTs, (int)size * 4, gridIs);
+	gridIs[i] = i;
+	gridIs[i+1] = i+1;
+
+	gridPs[i] = (Vec3){0.f, 0.f, 0.f};
+	gridPs[i+1] = (Vec3){0.f, height, 0.f};
+
+	gridCs[i] = (Color){1.f, 0.f, 0.f, 1.f};
+	gridCs[i+1] = (Color){1.f, 0.f, 0.f, 1.f};
+
+	gridTs[i] = (Vec2){0.f, 0.f};
+	gridTs[i+1] = (Vec2){0.f, 0.f};
+
+	r.gridMesh = renderMeshNew((int)size * 4 + 2, gridPs, gridCs, gridTs, (int)size * 4 + 2, gridIs);
 	r.gridMesh.primitive = GL_LINES;
 
 	free(gridIs);
@@ -135,10 +148,10 @@ Room entityRoomNew(float size, float height) {
 	wallsTs[3] = (Vec2){2.f, 0.f};
 
 	// Front wall
-	wallsPs[4]  = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
-	wallsPs[5]  = (Vec3){-size / 2.f, height, -size / 2.f};
-	wallsPs[6] = (Vec3){ size / 2.f, height,  -size / 2.f};
-	wallsPs[7] = (Vec3){ size / 2.f,  0.f,    -size / 2.f};
+	wallsPs[4] = (Vec3){-size / 2.f, 0.f,    -size / 2.f};
+	wallsPs[5] = (Vec3){-size / 2.f, height, -size / 2.f};
+	wallsPs[6] = (Vec3){ size / 2.f, height, -size / 2.f};
+	wallsPs[7] = (Vec3){ size / 2.f,  0.f,   -size / 2.f};
 
 	wallsCs[4] = (Color){1.f, 1.f, 1.f, 1.f};
 	wallsCs[5] = (Color){1.f, 1.f, 1.f, 1.f};
@@ -185,4 +198,80 @@ Room entityRoomNew(float size, float height) {
 	r.wallsMesh = renderMeshNew(16, wallsPs, wallsCs, wallsTs, 24, wallsIs);
 
 	return r;
+}
+
+Wall entityWallNew(Vec3 start, Vec3 end) {
+	static float height = 0.6f;
+
+	Wall w;
+	w.start = start;
+	w.end = end;
+
+	unsigned int is[6] = {
+		3, 1, 0,
+		3, 2, 1
+	};
+
+	Vec3 ps[4] = {
+		(Vec3){0.f, 0.f, 0.f},
+		(Vec3){0.f, height, 0.f},
+		(Vec3){1.f, height, 0.f},
+		(Vec3){1.f, 0.f, 0.f}
+	};
+
+	Color cs[4] = {
+		(Color){0.f, 0.50f, 0.81f, 0.9f},
+		(Color){0.f, 0.50f, 0.81f, 0.9f},
+		(Color){0.f, 0.50f, 0.81f, 0.9f},
+		(Color){0.f, 0.50f, 0.81f, 0.9f}
+	};
+
+	Vec2 ts[4] = {
+		(Vec2){0.f, 0.f},
+		(Vec2){0.f, 1.f},
+		(Vec2){1.f, 1.f},
+		(Vec2){1.f, 0.f}
+	};
+
+	w.mesh = renderMeshNew(4, ps, cs, ts, 6, is);
+	return w;
+}
+
+void entityWallRender(Shader* s, Wall* w, Texture tx) {
+	float step = 1.f;
+
+	float dx = w->end.x - w->start.x;
+	float dz = w->end.z - w->start.z;
+	float adx = fabsf(dx);
+	float adz = fabsf(dz);
+
+	int n = (int)((adx != 0.f ? adx : adz) / step);
+	float c = adx != 0.f ? w->start.x : w->start.z;
+
+	renderCullFace(0);
+
+	for(int i = 1; i <= n; ++i) {
+		Vec3 tv;
+		tv.x = adx != 0.f ? c : 0.f;
+		tv.y = 0.f;
+		tv.z = adz != 0.f ? c : 0.f;
+
+		float alpha = adz != 0.f ? atan2(w->end.z - 1.f, w->end.x - 0.f) : 0.f;
+
+		Mat4 t = mathMat4Translation(tv);
+		Mat4 r = mathMat4Rotation((Vec3){0.f, alpha * 180.f / PI, 0.f});
+		Mat4 m = mathMat4MulM(t, r);
+
+		renderShaderSetModel(s, &m);
+		renderMeshDraw(s, &w->mesh, tx);
+
+		if(dx > 0.f || dz > 0.f) {
+			c += step;
+		}
+		else {
+			c -= step;
+		}
+	}
+
+	renderCullFace(1);
 }

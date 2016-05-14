@@ -10,16 +10,28 @@
 #include "utils.h"
 
 void renderInit(void) {
-	glClearColor(0.52f, 0.8f, 0.92f, 1.f);
+	glClearColor(0.03f, 0.07f, 0.09f, 1.f);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_MULTISAMPLE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void renderClear(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void renderCullFace(bool enabled) {
+	if(enabled) {
+		glEnable(GL_CULL_FACE);
+	}
+	else {
+		glDisable(GL_CULL_FACE);
+	}
 }
 
 Shader renderShaderLoad(const char* vpath, const char* fpath) {

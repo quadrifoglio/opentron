@@ -21,12 +21,15 @@ typedef struct {
 
 	Texture whiteTex;
 	Texture wallsTex;
+	Texture motoWallTex;
 
 	Mesh cubeMesh;
 	Camera cam;
 
 	Room room;
 	Entity moto;
+
+	Wall wall1, wall2;
 } Game;
 
 Game gameInit(int width, int height);
