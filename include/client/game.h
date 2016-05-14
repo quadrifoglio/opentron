@@ -20,6 +20,7 @@ typedef struct {
 	Shader shader;
 
 	Texture whiteTex;
+	Texture groundTex;
 	Texture wallsTex;
 	Texture motoWallTex;
 

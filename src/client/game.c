@@ -18,6 +18,7 @@ Game gameInit(int width, int height) {
 	renderShaderSetProj(&g.shader, &proj);
 
 	g.whiteTex = renderTextureWhite();
+	g.groundTex = renderTextureLoad("res/textures/ground.png");
 	g.wallsTex = renderTextureLoad("res/textures/walls.png");
 	g.motoWallTex = renderTextureLoad("res/textures/wall.png");
 
@@ -127,7 +128,7 @@ void gameRender(Game* g) {
 	renderShaderSetModel(&g->shader, &identity);
 	entityCameraUse(&g->cam, &g->shader);
 
-	entityRoomRender(&g->shader, &g->room, g->whiteTex, g->whiteTex, g->wallsTex);
+	entityRoomRender(&g->shader, &g->room, g->groundTex, g->whiteTex, g->wallsTex);
 
 	renderShaderSetTransform(&g->shader, g->player.e.tr);
 	renderMeshDraw(&g->shader, &g->player.e.mesh, g->whiteTex);

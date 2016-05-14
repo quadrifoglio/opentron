@@ -20,9 +20,7 @@ typedef struct {
 	Mesh groundMesh;
 	Mesh wallsMesh;
 
-	Mesh xGridMesh;
 	Mesh yGridMesh;
-	Mesh zGridMesh;
 } Room;
 
 typedef struct {
