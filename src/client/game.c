@@ -34,7 +34,7 @@ Game gameInit(int width, int height) {
 	g.walls.xWalls = malloc(sizeof(Wall));
 	g.walls.zWalls = malloc(sizeof(Wall));
 	g.walls.xWalls[0] = entityWallNew((Vec3){-25.f, 0.f, -5.f}, (Vec3){25.f, 0.f, -5.f});
-	g.walls.zWalls[0] = entityWallNew((Vec3){5.f, 0.f, 25.f}, (Vec3){5.f, 0.f, -25.f});
+	g.walls.zWalls[0] = entityWallNew((Vec3){-5.f, 0.f, 25.f}, (Vec3){-5.f, 0.f, -25.f});
 
 	return g;
 }
