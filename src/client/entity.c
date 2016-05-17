@@ -60,9 +60,9 @@ Room entityRoomNew(float size, float height) {
 	groundCs[3] = (Color){0.2f, 0.7f, 0.8f, 0.1f};
 
 	groundTs[0] = (Vec2){0.f, 0.f};
-	groundTs[1] = (Vec2){size, 0.f};
-	groundTs[2] = (Vec2){size, size};
-	groundTs[3] = (Vec2){0.f, size};
+	groundTs[1] = (Vec2){size * 2.f, 0.f};
+	groundTs[2] = (Vec2){size * 2.f, size * 2.f};
+	groundTs[3] = (Vec2){0.f, size * 2.f};
 
 	r.groundMesh = renderMeshNew(4, groundPs, groundCs, groundTs, 6, groundIs);
 
@@ -159,15 +159,15 @@ Room entityRoomNew(float size, float height) {
 	return r;
 }
 
-void entityRoomRender(Shader* s, Room* r, Texture texGround, Texture texGrid, Texture texWalls) {
+void entityRoomRender(Shader* s, Room* r, TextureGroup* tx) {
 	Mat4 m;
 
-	renderMeshDraw(s, &r->groundMesh, texGround);
-	renderMeshDraw(s, &r->wallsMesh, texWalls);
+	renderMeshDraw(s, &r->groundMesh, tx->ground);
+	renderMeshDraw(s, &r->wallsMesh, tx->roomWalls);
 
 	m = mathMat4Translation((Vec3){0.f, 0.f, 0.f});
 	renderShaderSetModel(s, &m);
-	renderMeshDraw(s, &r->yGridMesh, texGrid);
+	renderMeshDraw(s, &r->yGridMesh, tx->white);
 }
 
 Wall entityWallNew(Vec3 start, Vec3 end) {
@@ -250,9 +250,9 @@ Player entityPlayerNew(Vec3 pos) {
 	static float width = 0.2f;
 	static float height = 0.6f;
 	static float length = 1.f;
-	static float speed = 3.f; // 3 units / second
+	static float speed = 10.f; // 3 units / second
 
-	Player p;
+	Player p = {0};
 
 	p.e = entityNew(renderMeshLoad("res/models/cube.obj", (Color){0.f, 0.f, 1.f, 1.f}));
 	p.e.tr.scale = (Vec3){width * 0.5f, height * 0.5f, length * 0.5f};
@@ -265,24 +265,47 @@ Player entityPlayerNew(Vec3 pos) {
 	return p;
 }
 
+void entityPlayerKeyPressed(Player* p, int key) {
+	if(key != KEY_LFT && key != KEY_RGT) {
+		return;
+	}
+
+	if(p->dir.z > 0.f) {
+		p->nextDir.x = key == KEY_LFT ? 1.f : -1.f;
+		p->nextDir.z = 0.f;
+	}
+	else if(p->dir.z < 0.f) {
+		p->nextDir.x = key == KEY_LFT ? -1.f : 1.f;
+		p->nextDir.z = 0.f;
+	}
+	else if(p->dir.x > 0.f) {
+		p->nextDir.z = key == KEY_LFT ? -1.f : 1.f;
+		p->nextDir.x = 0.f;
+	}
+	else if(p->dir.x < 0.f) {
+		p->nextDir.z = key == KEY_LFT ? 1.f : -1.f;
+		p->nextDir.x = 0.f;
+	}
+}
+
 void entityPlayerUpdate(float dt, Player* p, Room* r, WallGroup* w) {
 	static float collisionDistance = 0.1f;
 
-	if(p->dir.x > 0.f) {
-		p->e.tr.rotation.y = -90.f;
-	}
-	else if(p->dir.x < 0.f) {
-		p->e.tr.rotation.y = 90.f;
-	}
-	else if(p->dir.z > 0.f) {
-		p->e.tr.rotation.y = 0.f;
-	}
-	else if(p->dir.z < 0.f) {
-		p->e.tr.rotation.y = 180.f;
-	}
-
 	float nx = p->pos.x + (p->dir.x * p->speed * dt);
 	float nz = p->pos.z + (p->dir.z * p->speed * dt);
+
+	if(p->nextDir.x != 0.f) {
+		p->dir = p->nextDir;
+
+		nx = p->pos.x + (p->dir.x * p->speed * dt);
+		nz = p->pos.z + (p->dir.z * p->speed * dt);
+	}
+	else if(p->nextDir.z != 0.f) {
+		p->dir = p->nextDir;
+
+		nx = p->pos.x + (p->dir.x * p->speed * dt);
+		nz = p->pos.z + (p->dir.z * p->speed * dt);
+	}
 
 	if(fabsf(nx) + p->size.z / 2.f > r->size / 2.f || fabsf(nz) + p->size.z / 2.f > r->size / 2.f) {
 		printf("Map collision ! \n");
@@ -300,7 +323,7 @@ void entityPlayerUpdate(float dt, Player* p, Room* r, WallGroup* w) {
 			if(p->dir.z < 0.f) d = (nx - p->size.z / 2.f) - wall.start.z;
 
 			if(fabsf(d) < collisionDistance) {
-				printf("Wall collison !\n");
+				//printf("Wall collison !\n");
 			}
 		}
 	}
@@ -313,9 +336,22 @@ void entityPlayerUpdate(float dt, Player* p, Room* r, WallGroup* w) {
 			if(p->dir.x < 0.f) d = (nx - p->size.z / 2.f) - wall.start.x;
 
 			if(fabsf(d) < collisionDistance) {
-				printf("Wall collison !\n");
+				//printf("Wall collison !\n");
 			}
 		}
+	}
+
+	if(p->dir.x > 0.f) {
+		p->e.tr.rotation.y = -90.f;
+	}
+	else if(p->dir.x < 0.f) {
+		p->e.tr.rotation.y = 90.f;
+	}
+	else if(p->dir.z > 0.f) {
+		p->e.tr.rotation.y = 0.f;
+	}
+	else if(p->dir.z < 0.f) {
+		p->e.tr.rotation.y = 180.f;
 	}
 
 	p->pos.x = nx;

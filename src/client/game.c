@@ -17,18 +17,18 @@ Game gameInit(int width, int height) {
 	renderShaderSetView(&g.shader, &identity);
 	renderShaderSetProj(&g.shader, &proj);
 
-	g.whiteTex = renderTextureWhite();
-	g.groundTex = renderTextureLoad("res/textures/ground.png");
-	g.wallsTex = renderTextureLoad("res/textures/walls.png");
-	g.motoWallTex = renderTextureLoad("res/textures/wall.png");
+	g.textures.white = renderTextureWhite();
+	g.textures.ground = renderTextureLoad("res/textures/ground.png");
+	g.textures.roomWalls = renderTextureLoad("res/textures/walls.png");
+	g.textures.playerWall = renderTextureLoad("res/textures/wall.png");
 
 	g.room = entityRoomNew(50.f, 20.f);
 
 	g.cam = entityCameraNew();
-	g.cam.position = (Vec3){0.f, 1.f, 0.f};
+	g.cam.position = (Vec3){0.f, 1.f, 20.f};
 	g.cam.target = (Vec3){0.f, 1.f, -1.f};
 
-	g.player = entityPlayerNew((Vec3){20.f, 0.3f, 0.f});
+	g.player = entityPlayerNew((Vec3){0.5f, 0.3f, 0.5f});
 
 	g.walls.xWallCount = 1;
 	g.walls.zWallCount = 1;
@@ -40,29 +40,12 @@ Game gameInit(int width, int height) {
 	return g;
 }
 
-void gameKeyPressed(Game* g, int key) {
-	switch(key) {
-		case KEY_FWD:
-			g->forward = 1;
-			break;
-		case KEY_BWD:
-			g->backward = 1;
-			break;
-		case KEY_LFT:
-			g->left = 1;
-			break;
-		case KEY_RGT:
-			g->right = 1;
-			break;
-	}
-}
-
 void gameMouseMoved(Game* g, float x, float y) {
-	g->mousePrev = g->mouse;
-	g->mouse.x = x;
-	g->mouse.y = y;
+	g->input.mousePrev = g->input.mouse;
+	g->input.mouse.x = x;
+	g->input.mouse.y = y;
 
-	Vec2 mouseDelta = mathVec2SubV(g->mouse, g->mousePrev);
+	Vec2 mouseDelta = mathVec2SubV(g->input.mouse, g->input.mousePrev);
 	Vec4 t = mathMat4MulV(mathMat4RotationV(mouseDelta.x / 4.f, (Vec3){0.f, 1.f, 0.f}), (Vec4){g->cam.target.x, g->cam.target.y, g->cam.target.z, 0.f});
 
 	g->cam.target.x = t.x;
@@ -70,19 +53,38 @@ void gameMouseMoved(Game* g, float x, float y) {
 	g->cam.target.z = t.z;
 }
 
+void gameKeyPressed(Game* g, int key) {
+	switch(key) {
+		case KEY_FWD:
+			g->input.forward = 1;
+			break;
+		case KEY_BWD:
+			g->input.backward = 1;
+			break;
+		case KEY_LFT:
+			g->input.left = 1;
+			break;
+		case KEY_RGT:
+			g->input.right = 1;
+			break;
+	}
+
+	entityPlayerKeyPressed(&g->player, key);
+}
+
 void gameKeyReleased(Game* g, int key) {
 	switch(key) {
 		case KEY_FWD:
-			g->forward = 0;
+			g->input.forward = 0;
 			break;
 		case KEY_BWD:
-			g->backward = 0;
+			g->input.backward = 0;
 			break;
 		case KEY_LFT:
-			g->left = 0;
+			g->input.left = 0;
 			break;
 		case KEY_RGT:
-			g->right = 0;
+			g->input.right = 0;
 			break;
 	}
 }
@@ -91,17 +93,17 @@ void gameUpdate(Game* g, double dt) {
 	float dx = 0.f;
 	float dz = 0.f;
 
-	if(g->forward) {
+	if(g->input.forward) {
 		dz = -3.f * dt;
 	}
-	else if(g->backward) {
+	else if(g->input.backward) {
 		dz = 3.f * dt;
 	}
 
-	if(g->left) {
+	if(g->input.left) {
 		dx = -3.f * dt;
 	}
-	else if(g->right) {
+	else if(g->input.right) {
 		dx = 3.f * dt;
 	}
 
@@ -128,16 +130,16 @@ void gameRender(Game* g) {
 	renderShaderSetModel(&g->shader, &identity);
 	entityCameraUse(&g->cam, &g->shader);
 
-	entityRoomRender(&g->shader, &g->room, g->groundTex, g->whiteTex, g->wallsTex);
+	entityRoomRender(&g->shader, &g->room, &g->textures);
 
 	renderShaderSetTransform(&g->shader, g->player.e.tr);
-	renderMeshDraw(&g->shader, &g->player.e.mesh, g->whiteTex);
+	renderMeshDraw(&g->shader, &g->player.e.mesh, g->textures.white);
 
 	for(int i = 0; i < g->walls.xWallCount; ++i) {
-		entityWallRender(&g->shader, &g->walls.xWalls[i], g->motoWallTex);
+		entityWallRender(&g->shader, &g->walls.xWalls[i], g->textures.playerWall);
 	}
 
 	for(int i = 0; i < g->walls.zWallCount; ++i) {
-		entityWallRender(&g->shader, &g->walls.zWalls[i], g->motoWallTex);
+		entityWallRender(&g->shader, &g->walls.zWalls[i], g->textures.playerWall);
 	}
 }

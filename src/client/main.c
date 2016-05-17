@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	GLenum err = glewInit();
 	if(err != GLEW_OK) {
